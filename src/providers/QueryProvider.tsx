@@ -1,4 +1,4 @@
-import { queryClient } from '@src/lib/trpc'
+import { queryClient } from '@/lib/trpc'
 import { QueryClientProvider } from '@tanstack/react-query'
 import type { PropsWithChildren } from 'react'
 

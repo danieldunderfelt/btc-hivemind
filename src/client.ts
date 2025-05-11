@@ -1,11 +1,11 @@
-import type { Router } from '@server/index'
+import { env } from '@/env'
+import type { Router } from '@server/trpc'
 import { createTRPCClient, httpBatchLink } from '@trpc/client'
-import { env } from '../env'
 
 export const client = createTRPCClient<Router>({
   links: [
     httpBatchLink({
-      url: env.VITE_TRPC_URL,
+      url: `${env.VITE_APP_URL}/trpc`,
     }),
   ],
 })

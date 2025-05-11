@@ -16,7 +16,6 @@ export default $config({
     }
   },
   async run() {
-    const betterAuthSecret = new sst.Secret('BETTER_AUTH_SECRET')
     const vpc = new sst.aws.Vpc('BTCVPC')
 
     const database = new sst.aws.Aurora('BTCDB', {
@@ -35,7 +34,14 @@ export default $config({
       },
     })
 
+    const siteInfo = new sst.Linkable<{ url: string }>('SiteInfo', {
+      properties: {
+        url: 'placeholder string',
+      },
+    })
+
     const cluster = new sst.aws.Cluster('BTCluster', { vpc })
+
     const server = new sst.aws.Service('BTCService', {
       cluster,
       loadBalancer: {
@@ -44,10 +50,7 @@ export default $config({
       dev: {
         command: 'bun dev:server',
       },
-      link: [database, betterAuthSecret],
-      environment: {
-        LOCAL_APP_URL: $dev ? 'http://localhost:5173' : '',
-      },
+      link: [database, siteInfo],
     })
 
     const web = new sst.aws.StaticSite('BTCWeb', {
@@ -61,6 +64,10 @@ export default $config({
       dev: {
         command: 'bun dev:client',
       },
+    })
+
+    web.getSSTLink().properties.url.apply((val) => {
+      siteInfo.properties.url = $dev ? 'http://localhost:5173' : val
     })
 
     return {

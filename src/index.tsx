@@ -3,7 +3,7 @@ import { StrictMode } from 'react'
 import ReactDOM from 'react-dom/client'
 import './global.css'
 
-import { QueryProvider } from '@src/providers/QueryProvider.tsx'
+import { QueryProvider } from '@/providers/QueryProvider.tsx'
 // Import the generated route tree
 import { routeTree } from './routeTree.gen.ts'
 
@@ -19,6 +19,7 @@ declare module '@tanstack/react-router' {
 
 // Render the app
 const rootElement = document.getElementById('root')!
+
 if (!rootElement.innerHTML) {
   const root = ReactDOM.createRoot(rootElement)
   root.render(

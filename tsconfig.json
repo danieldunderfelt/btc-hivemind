@@ -21,7 +21,7 @@
     "target": "es2017",
     "types": ["vite/client"],
     "paths": {
-      "@src/*": ["./src/*"],
+      "@/*": ["./src/*"],
       "@server/*": ["./server/*"]
     }
   },

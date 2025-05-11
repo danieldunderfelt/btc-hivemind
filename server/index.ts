@@ -4,6 +4,7 @@ import { getDb } from '@server/db'
 import { router } from '@server/trpc'
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
+import { env } from './env'
 
 export type HonoContext = {
   Variables: {
@@ -12,6 +13,8 @@ export type HonoContext = {
     db: ReturnType<typeof getDb>
   }
 }
+
+console.log(env.WEB_URL)
 
 const app = new Hono<HonoContext>()
 const db = getDb()
@@ -35,7 +38,7 @@ app.use('*', async (c, next) => {
 app.use(
   '*',
   cors({
-    origin: '*', // * becasue sst is being difficult
+    origin: env.WEB_URL,
     allowHeaders: ['Content-Type', 'Authorization'],
     allowMethods: ['POST', 'GET', 'OPTIONS'],
     exposeHeaders: ['Content-Length'],

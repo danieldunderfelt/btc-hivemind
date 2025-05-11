@@ -47,7 +47,7 @@
     "babel-plugin-react-compiler": "19.1.0-rc.1",
     "drizzle-kit": "^0.31.1",
     "postcss": "8.5.3",
-    "tailwindcss": "4.1.6",
+    "tailwindcss": "^4.1.6",
     "typescript": "^5.8.3",
     "vite": "6.3.4",
     "vite-tsconfig-paths": "^5.1.4"

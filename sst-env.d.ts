@@ -5,10 +5,6 @@
 
 declare module 'sst' {
   export interface Resource {
-    BETTER_AUTH_SECRET: {
-      type: 'sst.sst.Secret'
-      value: string
-    }
     BTCDB: {
       clusterArn: string
       database: string
@@ -30,6 +26,10 @@ declare module 'sst' {
     }
     BTCWeb: {
       type: 'sst.aws.StaticSite'
+      url: string
+    }
+    SiteInfo: {
+      type: 'sst.sst.Linkable'
       url: string
     }
   }

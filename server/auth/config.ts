@@ -1,6 +1,7 @@
 import { getDb } from '@server/db'
 import { betterAuth } from 'better-auth'
 import { drizzleAdapter } from 'better-auth/adapters/drizzle'
+import { emailOTP } from 'better-auth/plugins'
 import { env } from '../env'
 
 export const auth = betterAuth({
@@ -9,10 +10,11 @@ export const auth = betterAuth({
   }),
   secret: env.BETTER_AUTH_SECRET,
   url: env.BETTER_AUTH_URL,
-  emailAndPassword: {
-    enabled: true,
-  },
-  cookie: {
-    enabled: true,
-  },
+  plugins: [
+    emailOTP({
+      async sendVerificationOTP({ email, otp, type }) {
+        // Implement the sendVerificationOTP method to send the OTP to the user's email address
+      },
+    }),
+  ],
 })

@@ -1,4 +1,4 @@
-import { trpc } from '@src/lib/trpc'
+import { trpc } from '@/lib/trpc'
 import { useQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 
