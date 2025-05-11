@@ -11,13 +11,27 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
+import { Route as GuessImport } from './routes/guess'
 import { Route as IndexImport } from './routes/index'
+import { Route as AuthPathnameImport } from './routes/auth/$pathname'
 
 // Create/Update Routes
+
+const GuessRoute = GuessImport.update({
+  id: '/guess',
+  path: '/guess',
+  getParentRoute: () => rootRoute,
+} as any)
 
 const IndexRoute = IndexImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const AuthPathnameRoute = AuthPathnameImport.update({
+  id: '/auth/$pathname',
+  path: '/auth/$pathname',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -32,6 +46,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexImport
       parentRoute: typeof rootRoute
     }
+    '/guess': {
+      id: '/guess'
+      path: '/guess'
+      fullPath: '/guess'
+      preLoaderRoute: typeof GuessImport
+      parentRoute: typeof rootRoute
+    }
+    '/auth/$pathname': {
+      id: '/auth/$pathname'
+      path: '/auth/$pathname'
+      fullPath: '/auth/$pathname'
+      preLoaderRoute: typeof AuthPathnameImport
+      parentRoute: typeof rootRoute
+    }
   }
 }
 
@@ -39,32 +67,42 @@ declare module '@tanstack/react-router' {
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/guess': typeof GuessRoute
+  '/auth/$pathname': typeof AuthPathnameRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/guess': typeof GuessRoute
+  '/auth/$pathname': typeof AuthPathnameRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
+  '/guess': typeof GuessRoute
+  '/auth/$pathname': typeof AuthPathnameRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/guess' | '/auth/$pathname'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/guess' | '/auth/$pathname'
+  id: '__root__' | '/' | '/guess' | '/auth/$pathname'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  GuessRoute: typeof GuessRoute
+  AuthPathnameRoute: typeof AuthPathnameRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  GuessRoute: GuessRoute,
+  AuthPathnameRoute: AuthPathnameRoute,
 }
 
 export const routeTree = rootRoute
@@ -77,11 +115,19 @@ export const routeTree = rootRoute
     "__root__": {
       "filePath": "__root.tsx",
       "children": [
-        "/"
+        "/",
+        "/guess",
+        "/auth/$pathname"
       ]
     },
     "/": {
       "filePath": "index.tsx"
+    },
+    "/guess": {
+      "filePath": "guess.tsx"
+    },
+    "/auth/$pathname": {
+      "filePath": "auth/$pathname.tsx"
     }
   }
 }

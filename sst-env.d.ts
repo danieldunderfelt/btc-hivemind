@@ -5,7 +5,7 @@
 
 declare module 'sst' {
   export interface Resource {
-    BTCDB: {
+    AppDB: {
       clusterArn: string
       database: string
       host: string
@@ -16,15 +16,15 @@ declare module 'sst' {
       type: 'sst.aws.Aurora'
       username: string
     }
-    BTCService: {
+    AppService: {
       service: string
       type: 'sst.aws.Service'
       url: string
     }
-    BTCVPC: {
+    AppVPC: {
       type: 'sst.aws.Vpc'
     }
-    BTCWeb: {
+    AppWeb: {
       type: 'sst.aws.StaticSite'
       url: string
     }

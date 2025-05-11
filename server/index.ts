@@ -14,8 +14,6 @@ export type HonoContext = {
   }
 }
 
-console.log(env.WEB_URL)
-
 const app = new Hono<HonoContext>()
 const db = getDb()
 
@@ -55,8 +53,6 @@ app.use(
   }),
 )
 
-app.on(['POST', 'GET'], '/api/auth/*', (c) => {
-  return auth.handler(c.req.raw)
-})
+app.on(['POST', 'GET'], '/api/auth/*', (c) => auth.handler(c.req.raw))
 
 export default app

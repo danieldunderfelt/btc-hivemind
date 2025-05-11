@@ -16,9 +16,9 @@ export default $config({
     }
   },
   async run() {
-    const vpc = new sst.aws.Vpc('BTCVPC')
+    const vpc = new sst.aws.Vpc('AppVPC')
 
-    const database = new sst.aws.Aurora('BTCDB', {
+    const database = new sst.aws.Aurora('AppDB', {
       engine: 'postgres',
       scaling: {
         min: '1 ACU',
@@ -40,9 +40,9 @@ export default $config({
       },
     })
 
-    const cluster = new sst.aws.Cluster('BTCluster', { vpc })
+    const cluster = new sst.aws.Cluster('AppCluster', { vpc })
 
-    const server = new sst.aws.Service('BTCService', {
+    const server = new sst.aws.Service('AppService', {
       cluster,
       loadBalancer: {
         ports: [{ listen: '80/http', forward: '3000/http' }],
@@ -53,7 +53,7 @@ export default $config({
       link: [database, siteInfo],
     })
 
-    const web = new sst.aws.StaticSite('BTCWeb', {
+    const web = new sst.aws.StaticSite('AppWeb', {
       build: {
         command: 'bun run build',
         output: 'dist',
