@@ -4,12 +4,14 @@
     "allowImportingTsExtensions": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
+    "allowArbitraryExtensions": true,
     "incremental": true,
     "isolatedModules": true,
     "jsx": "preserve",
     "lib": ["dom", "dom.iterable", "esnext"],
-    "module": "nodenext",
-    "moduleResolution": "nodenext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "allowSyntheticDefaultImports": true,
     "noEmit": true,
     "noImplicitOverride": true,
     "noUnusedLocals": true,
@@ -17,17 +19,12 @@
     "skipLibCheck": true,
     "strict": true,
     "target": "es2017",
-    "types": ["vite/client"]
+    "types": ["vite/client"],
+    "paths": {
+      "@src/*": ["./src/*"],
+      "@server/*": ["./server/*"]
+    }
   },
   "exclude": ["node_modules"],
-  "include": ["**/*.ts", "**/*.tsx"],
-  "ts-node": {
-    "transpileOnly": true,
-    "transpiler": "ts-node/transpilers/swc",
-    "files": true,
-    "compilerOptions": {
-      "module": "esnext",
-      "isolatedModules": false
-    }
-  }
+  "include": ["**/*.ts", "**/*.tsx"]
 }
