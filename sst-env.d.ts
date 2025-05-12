@@ -16,12 +16,8 @@ declare module 'sst' {
       type: 'sst.aws.Aurora'
       username: string
     }
-    AppService: {
-      service: string
-      type: 'sst.aws.Service'
-      url: string
-    }
     AppVPC: {
+      bastion: string
       type: 'sst.aws.Vpc'
     }
     AppWeb: {
@@ -39,6 +35,10 @@ declare module 'sst' {
     MOBULA_API_KEY: {
       type: 'sst.sst.Secret'
       value: string
+    }
+    Router: {
+      type: 'sst.aws.Router'
+      url: string
     }
     SMTP_PASSWORD: {
       type: 'sst.sst.Secret'

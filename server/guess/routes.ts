@@ -33,5 +33,5 @@ export function addGuessMutation(procedure: Procedure) {
 }
 
 export function latestUserGuessQuery(procedure: Procedure) {
-  return procedure.query(async ({ ctx }) => getLatestGuess(ctx))
+  return procedure.query(({ ctx }) => getLatestGuess(ctx))
 }

@@ -1,4 +1,5 @@
 import { env } from '@/env'
+import { mergePaths } from '@/lib/utils'
 import { QueryClient } from '@tanstack/react-query'
 import { createTRPCClient, httpBatchLink } from '@trpc/client'
 import { createTRPCContext, createTRPCOptionsProxy } from '@trpc/tanstack-react-query'
@@ -12,7 +13,7 @@ const trpcClient = createTRPCClient<Router>({
   links: [
     httpBatchLink({
       transformer: superjson,
-      url: `${env.VITE_APP_URL}/trpc`,
+      url: `${env.VITE_APP_URL}${mergePaths('/trpc')}`,
       fetch: ((input, init) => {
         return fetch(input, {
           ...init,

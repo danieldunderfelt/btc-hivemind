@@ -4,9 +4,8 @@ import { emailOTP } from 'better-auth/plugins'
 import nodemailer from 'nodemailer'
 import { getDb } from '../db'
 import { env } from '../env'
+import { mergePaths } from '../utils'
 import { getVerificationEmail } from './verificationEmail'
-
-console.log('NODE_ENV', env.WEB_URL, env.API_URL)
 
 export const auth = betterAuth({
   database: drizzleAdapter(getDb(), {
@@ -22,13 +21,13 @@ export const auth = betterAuth({
       enabled: true,
     },
     defaultCookieAttributes: {
-      domain: env.WEB_URL,
-      sameSite: env.NODE_ENV === 'production' ? 'none' : 'lax',
       secure: true,
+      sameSite: 'lax',
       partitioned: true,
     },
   },
   baseURL: env.API_URL,
+  basePath: mergePaths('/auth'),
   plugins: [
     emailOTP({
       sendVerificationOnSignUp: true,

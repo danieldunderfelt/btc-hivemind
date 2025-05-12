@@ -6,8 +6,9 @@ import { getDb } from './db'
 import { env } from './env'
 import { router } from './trpc'
 import type { HonoContext } from './types'
+import { mergePaths } from './utils'
 
-const app = new Hono<HonoContext>()
+const app = new Hono<HonoContext>().basePath(env.API_PATH)
 const db = getDb()
 
 app.use(
@@ -28,7 +29,6 @@ app.use('*', async (ctx, next) => {
   if (!session) {
     ctx.set('user', null)
     ctx.set('session', null)
-
     return next()
   }
 
@@ -42,7 +42,7 @@ app.use(
   '/trpc/*',
   trpcServer({
     router: router,
-    endpoint: '/trpc',
+    endpoint: mergePaths('/trpc'),
     createContext(_, c) {
       return {
         user: c.get('user'),
@@ -53,7 +53,7 @@ app.use(
   }),
 )
 
-app.on(['POST', 'GET'], '/api/auth/*', (c) => auth.handler(c.req.raw))
+app.on(['POST', 'GET'], '/auth/*', (c) => auth.handler(c.req.raw))
 app.on(['GET'], '/check-auth', (c) => {
   const session = c.get('session')
 
@@ -62,6 +62,10 @@ app.on(['GET'], '/check-auth', (c) => {
   }
 
   return c.json({ authenticated: true })
+})
+
+app.get('/', (c) => {
+  return c.json({ message: 'Hello, world!' })
 })
 
 export default app

@@ -12,6 +12,7 @@ export const env = createEnv({
   client: {
     VITE_APP_URL: z.string().url(),
     VITE_PROD: z.boolean(),
+    VITE_API_PATH: z.string().min(1),
   },
 
   /**
@@ -21,6 +22,7 @@ export const env = createEnv({
   runtimeEnvStrict: {
     VITE_APP_URL: import.meta.env.VITE_APP_URL,
     VITE_PROD: import.meta.env.PROD || false,
+    VITE_API_PATH: import.meta.env.VITE_API_PATH,
   },
   emptyStringAsUndefined: true,
 })

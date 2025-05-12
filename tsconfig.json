@@ -43,6 +43,7 @@
     "./src/**/*.d.ts",
     "./server/**/*.ts",
     "./server/**/*.tsx",
-    "./db/**/*.ts"
+    "./db/**/*.ts",
+    "dev.ts"
   ]
 }

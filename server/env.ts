@@ -15,6 +15,7 @@ export const env = createEnv({
     SMTP_FROM_EMAIL:
       process.env.NODE_ENV === 'production' ? z.string().min(1) : z.string().optional(),
     API_URL: z.string().url(),
+    API_PATH: z.string().min(1),
     MOBULA_API_KEY:
       process.env.NODE_ENV === 'production' ? z.string().min(1) : z.string().optional(),
   },

@@ -5,6 +5,7 @@
 interface ImportMetaEnv {
   readonly VITE_APP_URL: string
   readonly NODE_ENV: string
+  readonly VITE_API_PATH: string
 }
 interface ImportMeta {
   readonly env: ImportMetaEnv

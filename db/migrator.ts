@@ -5,6 +5,8 @@ import { Resource } from 'sst'
 import { fullSchema } from './fullSchema'
 
 export const handler = async () => {
+  console.log('Migrating database', Resource.AppDB)
+
   const client = new Pool({
     host: Resource.AppDB.host,
     port: Number(Resource.AppDB.port),
