@@ -21,8 +21,7 @@
     "target": "es2017",
     "types": ["vite/client"],
     "paths": {
-      "@/*": ["./src/*"],
-      "@server/*": ["./server/*"]
+      "@/*": ["./src/*"]
     }
   },
   "exclude": ["node_modules"],

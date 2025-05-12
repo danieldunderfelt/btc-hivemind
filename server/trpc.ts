@@ -1,6 +1,6 @@
-import type { HonoContext } from '@server/index'
 import { initTRPC } from '@trpc/server'
 import { z } from 'zod'
+import type { HonoContext } from './index'
 
 const t = initTRPC.context<HonoContext>().create()
 

@@ -1,7 +1,7 @@
 import { EmailTemplate } from '@daveyplate/better-auth-ui'
 import { render } from '@react-email/render'
-import { env } from '@server/env'
 import React from 'react'
+import { env } from '../env'
 
 export async function getVerificationEmail({
   email,

@@ -1,8 +1,8 @@
 import { env } from '@/env'
-import type { Router } from '@server/trpc'
 import { QueryClient } from '@tanstack/react-query'
 import { createTRPCClient, httpBatchLink } from '@trpc/client'
 import { createTRPCContext, createTRPCOptionsProxy } from '@trpc/tanstack-react-query'
+import type { Router } from '../../server/trpc'
 export const { TRPCProvider, useTRPC, useTRPCClient } = createTRPCContext<Router>()
 
 export const queryClient = new QueryClient()
@@ -14,7 +14,7 @@ const trpcClient = createTRPCClient<Router>({
       fetch: ((input, init) => {
         return fetch(input, {
           ...init,
-          credentials: 'include', // Required for sending cookies cross-origin
+          credentials: 'include',
         })
       }) satisfies typeof fetch,
     }),

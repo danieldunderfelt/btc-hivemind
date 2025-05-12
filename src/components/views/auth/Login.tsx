@@ -64,7 +64,7 @@ export default function LoginView({ redirectTo }: { redirectTo: string }) {
                 placeholder="you@example.com"
                 required
                 disabled={sendOtpMutation.isPending}
-                className="text-gray-800 text-sm"
+                className="text-sm"
               />
             </div>
             <Button type="submit" className="w-full" disabled={sendOtpMutation.isPending}>

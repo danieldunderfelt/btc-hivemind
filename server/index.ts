@@ -1,10 +1,10 @@
-import { trpcServer } from '@hono/trpc-server' // Deno 'npm:@hono/trpc-server'
-import { auth } from '@server/auth/config'
-import { getDb } from '@server/db'
-import { router } from '@server/trpc'
+import { trpcServer } from '@hono/trpc-server'
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
+import { auth } from './auth/config'
+import { getDb } from './db'
 import { env } from './env'
+import { router } from './trpc'
 
 export type HonoContext = {
   Variables: {
@@ -16,6 +16,18 @@ export type HonoContext = {
 
 const app = new Hono<HonoContext>()
 const db = getDb()
+
+app.use(
+  '*',
+  cors({
+    origin: env.WEB_URL,
+    allowHeaders: ['Content-Type', 'Authorization'],
+    allowMethods: ['GET', 'POST', 'OPTIONS'],
+    exposeHeaders: ['Content-Length'],
+    maxAge: 600,
+    credentials: true,
+  }),
+)
 
 app.use('*', async (c, next) => {
   c.set('db', db)
@@ -34,18 +46,6 @@ app.use('*', async (c, next) => {
 })
 
 app.use(
-  '*',
-  cors({
-    origin: env.WEB_URL,
-    allowHeaders: ['Content-Type', 'Authorization'],
-    allowMethods: ['POST', 'GET', 'OPTIONS'],
-    exposeHeaders: ['Content-Length'],
-    maxAge: 600,
-    credentials: true,
-  }),
-)
-
-app.use(
   '/trpc/*',
   trpcServer({
     router: router,
@@ -54,5 +54,14 @@ app.use(
 )
 
 app.on(['POST', 'GET'], '/api/auth/*', (c) => auth.handler(c.req.raw))
+app.on(['GET'], '/check-auth', (c) => {
+  const session = c.get('session')
+
+  if (!session) {
+    return c.json({ authenticated: false })
+  }
+
+  return c.json({ authenticated: true })
+})
 
 export default app

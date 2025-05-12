@@ -1,34 +1,36 @@
-import { getVerificationEmail } from '@server/auth/verificationEmail'
-import { getDb } from '@server/db'
 import { betterAuth } from 'better-auth'
 import { drizzleAdapter } from 'better-auth/adapters/drizzle'
 import { emailOTP } from 'better-auth/plugins'
 import nodemailer from 'nodemailer'
+import { getDb } from '../db'
 import { env } from '../env'
+import { getVerificationEmail } from './verificationEmail'
 
 export const auth = betterAuth({
   database: drizzleAdapter(getDb(), {
     provider: 'pg',
   }),
   secret: env.BETTER_AUTH_SECRET,
-  url: env.BETTER_AUTH_URL,
-  trustedOrigins: [
-    'http://localhost:5173',
-    'http://localhost:3000',
-    env.BETTER_AUTH_URL,
-    env.WEB_URL,
-  ],
+  trustedOrigins: ['http://localhost:5173', 'http://localhost:3000', env.WEB_URL, env.API_URL],
   emailVerification: {
     autoSignInAfterVerification: true,
   },
+  advanced: {
+    crossSubDomainCookies: {
+      enabled: true,
+    },
+    defaultCookieAttributes: {
+      sameSite: 'none',
+      secure: true,
+      partitioned: true,
+    },
+  },
+  baseURL: env.API_URL,
   plugins: [
     emailOTP({
       sendVerificationOnSignUp: true,
       disableSignUp: false,
       async sendVerificationOTP({ email, otp, type }) {
-        // TODO: Replace with actual email sending logic
-        console.log(`Email OTP for ${email}: ${otp} (type: ${type})`)
-
         const transporter = nodemailer.createTransport({
           pool: true,
           host: env.SMTP_HOST,
@@ -39,8 +41,6 @@ export const auth = betterAuth({
             pass: env.SMTP_PASSWORD,
           },
         })
-
-        console.log(await transporter.verify())
 
         const html = await getVerificationEmail({ email, otp })
 

@@ -8,8 +8,7 @@ export const Route = createFileRoute('/')({
 })
 
 function Index() {
-  const greetingQuery = useQuery(trpc.greet.queryOptions({ name: 'Daniel' }))
-  console.log(greetingQuery.data)
+  const greetingQuery = useQuery(trpc.greet.queryOptions({ name: 'Test' }))
 
   return (
     <PageContainer innerClassName="max-w-none">

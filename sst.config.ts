@@ -16,13 +16,25 @@ export default $config({
     }
   },
   async run() {
+    const betterAuthSecret = new sst.Secret('BETTER_AUTH_SECRET')
+    const smtpSecret = new sst.Secret('SMTP_PASSWORD')
+
+    const env = {
+      NODE_ENV: $dev ? 'development' : 'production',
+      SMTP_HOST: 'smtppro.zoho.com',
+      SMTP_PORT: '465',
+      SMTP_FROM_EMAIL: 'daniel@dunderfelt.consulting',
+      API_URL: $dev ? 'http://localhost:3000' : 'https://bitguessr.developsuperpowers.com',
+      DATABASE_URL: 'postgresql://postgres:password@localhost:5432/local', // For local only
+    }
+
     const vpc = new sst.aws.Vpc('AppVPC')
 
     const database = new sst.aws.Aurora('AppDB', {
       engine: 'postgres',
       scaling: {
-        min: '1 ACU',
-        max: '10 ACU',
+        min: '0.5 ACU',
+        max: '2 ACU',
       },
       dataApi: true,
       vpc,
@@ -34,9 +46,18 @@ export default $config({
       },
     })
 
-    const siteInfo = new sst.Linkable<{ url: string }>('SiteInfo', {
-      properties: {
-        url: 'placeholder string',
+    const web = new sst.aws.StaticSite('AppWeb', {
+      build: {
+        command: 'bun run build',
+        output: 'dist',
+      },
+      environment: {
+        VITE_APP_URL: env.API_URL,
+        NODE_ENV: $dev ? 'development' : 'production',
+      },
+      dev: {
+        command: 'bun dev:client',
+        url: 'http://localhost:5173',
       },
     })
 
@@ -44,31 +65,41 @@ export default $config({
 
     const server = new sst.aws.Service('AppService', {
       cluster,
-      loadBalancer: {
-        ports: [{ listen: '80/http', forward: '3000/http' }],
-      },
+      capacity: 'spot',
       dev: {
         command: 'bun dev:server',
+        url: 'http://localhost:3000',
       },
-      link: [database, siteInfo],
+      loadBalancer: {
+        domain: 'bitguessr.developsuperpowers.com',
+        rules: [
+          { listen: '80/http', redirect: '443/https' },
+          { listen: '443/https', forward: '3000/http' },
+        ],
+      },
+      environment: env,
+      link: [database, betterAuthSecret, smtpSecret, web],
     })
 
-    const web = new sst.aws.StaticSite('AppWeb', {
-      build: {
-        command: 'bun run build',
-        output: 'dist',
-      },
-      environment: {
-        VITE_APP_URL: $dev ? 'http://localhost:3000' : server.url,
-      },
-      dev: {
-        command: 'bun dev:client',
-      },
+    const migrator = new sst.aws.Function('DatabaseMigrator', {
+      handler: 'db/migrator.handler',
+      link: [database],
+      vpc,
+      timeout: '1 minute',
+      copyFiles: [
+        {
+          from: 'drizzle',
+          to: './drizzle',
+        },
+      ],
     })
 
-    web.getSSTLink().properties.url.apply((val) => {
-      siteInfo.properties.url = $dev ? 'http://localhost:5173' : val
-    })
+    if (!$dev) {
+      new aws.lambda.Invocation('DatabaseMigratorInvocation', {
+        input: Date.now().toString(),
+        functionName: migrator.name,
+      })
+    }
 
     return {
       api: server.url,

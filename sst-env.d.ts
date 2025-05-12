@@ -28,9 +28,17 @@ declare module 'sst' {
       type: 'sst.aws.StaticSite'
       url: string
     }
-    SiteInfo: {
-      type: 'sst.sst.Linkable'
-      url: string
+    BETTER_AUTH_SECRET: {
+      type: 'sst.sst.Secret'
+      value: string
+    }
+    DatabaseMigrator: {
+      name: string
+      type: 'sst.aws.Function'
+    }
+    SMTP_PASSWORD: {
+      type: 'sst.sst.Secret'
+      value: string
     }
   }
 }

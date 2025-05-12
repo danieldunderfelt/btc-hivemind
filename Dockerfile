@@ -6,22 +6,21 @@ WORKDIR /app
 
 # Cache packages installation
 COPY package.json package.json
-COPY bun.lockb bun.lockb
+COPY bun.lock bun.lock
 
-RUN bun install
+RUN bun install --frozen-lockfile
 
 COPY ./server ./server
 COPY ./db ./db
 
 ENV NODE_ENV=production
 
-RUN bun build \
+RUN bun build ./server/index.ts \
   --compile \
   --minify-whitespace \
   --minify-syntax \
   --target bun \
-  --outfile dist/server.js \
-  ./server/index.ts
+  --outfile dist/server.js
 
 FROM gcr.io/distroless/base
 
@@ -31,6 +30,6 @@ COPY --from=build /app/dist/server.js server
 
 ENV NODE_ENV=production
 
-CMD ["server"]
+CMD ["./server"]
 
 EXPOSE 3000
