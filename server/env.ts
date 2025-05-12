@@ -8,11 +8,15 @@ export const env = createEnv({
     BETTER_AUTH_SECRET: z.string().min(1),
     NODE_ENV: z.enum(['development', 'production']).default('development'),
     WEB_URL: z.string().url(),
-    SMTP_HOST: z.string().min(1),
-    SMTP_PORT: z.string().min(1),
-    SMTP_PASSWORD: z.string().min(1),
-    SMTP_FROM_EMAIL: z.string().min(1),
+    SMTP_HOST: process.env.NODE_ENV === 'production' ? z.string().min(1) : z.string().optional(),
+    SMTP_PORT: process.env.NODE_ENV === 'production' ? z.string().min(1) : z.string().optional(),
+    SMTP_PASSWORD:
+      process.env.NODE_ENV === 'production' ? z.string().min(1) : z.string().optional(),
+    SMTP_FROM_EMAIL:
+      process.env.NODE_ENV === 'production' ? z.string().min(1) : z.string().optional(),
     API_URL: z.string().url(),
+    MOBULA_API_KEY:
+      process.env.NODE_ENV === 'production' ? z.string().min(1) : z.string().optional(),
   },
   isServer: true,
   runtimeEnv: {
@@ -20,6 +24,7 @@ export const env = createEnv({
     WEB_URL: Resource.AppWeb.url || process.env.WEB_URL || 'http://localhost:5173',
     BETTER_AUTH_SECRET: Resource.BETTER_AUTH_SECRET.value,
     SMTP_PASSWORD: Resource.SMTP_PASSWORD.value,
+    MOBULA_API_KEY: process.env.NODE_ENV === 'production' ? Resource.MOBULA_API_KEY.value : '', // Free for development
   },
   emptyStringAsUndefined: true,
 })

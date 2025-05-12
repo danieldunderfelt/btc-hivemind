@@ -15,6 +15,7 @@
     "@aws-sdk/client-rds-data": "^3.806.0",
     "@daveyplate/better-auth-ui": "^1.5.18",
     "@hono/trpc-server": "^0.3.4",
+    "@number-flow/react": "^0.5.9",
     "@radix-ui/react-progress": "^1.1.6",
     "@radix-ui/react-slot": "^1.2.2",
     "@radix-ui/react-switch": "^1.2.4",

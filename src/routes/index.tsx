@@ -1,3 +1,4 @@
+import GuessCard from '@/components/GuessCard'
 import PageContainer from '@/components/PageContainer'
 import { trpc } from '@/lib/trpc'
 import { useQuery } from '@tanstack/react-query'
@@ -8,11 +9,11 @@ export const Route = createFileRoute('/')({
 })
 
 function Index() {
-  const greetingQuery = useQuery(trpc.greet.queryOptions({ name: 'Test' }))
+  const latestUserGuessQuery = useQuery(trpc.latestUserGuess.queryOptions())
 
   return (
     <PageContainer innerClassName="max-w-none">
-      {greetingQuery.data && <p>{greetingQuery.data}</p>}
+      {latestUserGuessQuery.data && <GuessCard guess={latestUserGuessQuery.data} />}
     </PageContainer>
   )
 }

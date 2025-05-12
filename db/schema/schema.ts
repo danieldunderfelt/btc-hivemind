@@ -15,6 +15,7 @@ export const guesses = pgTable(
       .references(() => user.id),
     guess: guessType('guess').notNull(),
     guessPrice: numeric('guess_price').notNull(),
+    guessedAt: timestamp('guessed_at').notNull(),
     createdAt: timestamp('created_at').defaultNow(),
   },
   (table) => [index('user_id_idx').on(table.userId)],
@@ -41,6 +42,7 @@ export const resolvedGuesses = pgView('resolved_guesses').as((qb) =>
       userId: guesses.userId,
       guess: guesses.guess,
       guessPrice: guesses.guessPrice,
+      guessedAt: guesses.guessedAt,
       resolvedAt: guessResolutions.resolvedAt,
       resolvedPrice: guessResolutions.resolvedPrice,
       isCorrect:
@@ -51,4 +53,20 @@ export const resolvedGuesses = pgView('resolved_guesses').as((qb) =>
     .from(guesses)
     .innerJoin(guessResolutions, eq(guesses.id, guessResolutions.guessId))
     .where(isNotNull(guessResolutions.resolvedAt)),
+)
+
+export const allGuesses = pgView('all_guesses').as((qb) =>
+  qb
+    .select({
+      guessId: guesses.id,
+      userId: guesses.userId,
+      guess: guesses.guess,
+      guessPrice: guesses.guessPrice,
+      guessedAt: guesses.guessedAt,
+      resolvedAt: resolvedGuesses.resolvedAt,
+      resolvedPrice: resolvedGuesses.resolvedPrice,
+      isCorrect: resolvedGuesses.isCorrect,
+    })
+    .from(guesses)
+    .leftJoin(resolvedGuesses, eq(guesses.id, resolvedGuesses.guessId)),
 )

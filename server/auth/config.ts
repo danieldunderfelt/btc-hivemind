@@ -6,6 +6,8 @@ import { getDb } from '../db'
 import { env } from '../env'
 import { getVerificationEmail } from './verificationEmail'
 
+console.log('NODE_ENV', env.WEB_URL, env.API_URL)
+
 export const auth = betterAuth({
   database: drizzleAdapter(getDb(), {
     provider: 'pg',
@@ -20,7 +22,8 @@ export const auth = betterAuth({
       enabled: true,
     },
     defaultCookieAttributes: {
-      sameSite: 'none',
+      domain: env.WEB_URL,
+      sameSite: env.NODE_ENV === 'production' ? 'none' : 'lax',
       secure: true,
       partitioned: true,
     },
@@ -31,6 +34,15 @@ export const auth = betterAuth({
       sendVerificationOnSignUp: true,
       disableSignUp: false,
       async sendVerificationOTP({ email, otp, type }) {
+        console.log('Sending verification OTP:', otp)
+
+        if (!env.SMTP_HOST) {
+          console.log(
+            'No SMTP host found, skipping email verification. Use above OTP for verification.',
+          )
+          return
+        }
+
         const transporter = nodemailer.createTransport({
           pool: true,
           host: env.SMTP_HOST,

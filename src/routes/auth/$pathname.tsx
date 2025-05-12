@@ -21,7 +21,7 @@ function RouteComponent() {
   }
 
   if (pathname === 'sign-out') {
-    return <SignOutView />
+    return null
   }
 
   return <div>Not found</div>

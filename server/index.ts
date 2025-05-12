@@ -5,14 +5,7 @@ import { auth } from './auth/config'
 import { getDb } from './db'
 import { env } from './env'
 import { router } from './trpc'
-
-export type HonoContext = {
-  Variables: {
-    user: typeof auth.$Infer.Session.user | null
-    session: typeof auth.$Infer.Session.session | null
-    db: ReturnType<typeof getDb>
-  }
-}
+import type { HonoContext } from './types'
 
 const app = new Hono<HonoContext>()
 const db = getDb()
@@ -29,18 +22,18 @@ app.use(
   }),
 )
 
-app.use('*', async (c, next) => {
-  c.set('db', db)
-  const session = await auth.api.getSession({ headers: c.req.raw.headers })
+app.use('*', async (ctx, next) => {
+  const session = await auth.api.getSession({ headers: ctx.req.raw.headers })
 
   if (!session) {
-    c.set('user', null)
-    c.set('session', null)
+    ctx.set('user', null)
+    ctx.set('session', null)
+
     return next()
   }
 
-  c.set('user', session.user)
-  c.set('session', session.session)
+  ctx.set('user', session.user)
+  ctx.set('session', session.session)
 
   return next()
 })
@@ -50,6 +43,13 @@ app.use(
   trpcServer({
     router: router,
     endpoint: '/trpc',
+    createContext(_, c) {
+      return {
+        user: c.get('user'),
+        session: c.get('session'),
+        db,
+      }
+    },
   }),
 )
 

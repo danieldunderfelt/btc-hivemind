@@ -18,12 +18,13 @@ export default $config({
   async run() {
     const betterAuthSecret = new sst.Secret('BETTER_AUTH_SECRET')
     const smtpSecret = new sst.Secret('SMTP_PASSWORD')
+    const mobulaApiKey = new sst.Secret('MOBULA_API_KEY')
 
     const env = {
       NODE_ENV: $dev ? 'development' : 'production',
-      SMTP_HOST: 'smtppro.zoho.com',
-      SMTP_PORT: '465',
-      SMTP_FROM_EMAIL: 'daniel@dunderfelt.consulting',
+      SMTP_HOST: $dev ? undefined : 'smtppro.zoho.com',
+      SMTP_PORT: $dev ? undefined : '465',
+      SMTP_FROM_EMAIL: $dev ? undefined : 'daniel@dunderfelt.consulting',
       API_URL: $dev ? 'http://localhost:3000' : 'https://bitguessr.developsuperpowers.com',
       DATABASE_URL: 'postgresql://postgres:password@localhost:5432/local', // For local only
     }
@@ -78,7 +79,7 @@ export default $config({
         ],
       },
       environment: env,
-      link: [database, betterAuthSecret, smtpSecret, web],
+      link: [database, betterAuthSecret, smtpSecret, web, mobulaApiKey],
     })
 
     const migrator = new sst.aws.Function('DatabaseMigrator', {

@@ -1,0 +1,30 @@
+{
+  "compilerOptions": {
+    // Base options from root tsconfig.json - adjust as needed
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
+    "allowJs": true, // Allow .cjs files
+
+    // Node-specific options
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "target": "ES2020", // Target a reasonable Node.js version support
+    "lib": ["ES2020"], // Libs appropriate for Node.js
+
+    // Configuration specific settings
+    "composite": true, // Good practice for multi-config setups
+    "noEmit": true, // Config files are usually run directly, not emitted
+    "types": ["node", "vite/client"] // Add node types, keep vite/client if vite.config needs it
+  },
+  "include": [
+    "sst.config.ts",
+    "vite.config.ts",
+    "tailwind.config.cjs",
+    "postcss.config.cjs"
+  ],
+  "exclude": ["node_modules", ".sst", "dist", "src", "server", "db"]
+}

@@ -1,11 +1,14 @@
 import { initTRPC } from '@trpc/server'
-import { z } from 'zod'
-import type { HonoContext } from './index'
+import superjson from 'superjson'
+import { addGuessMutation, latestUserGuessQuery } from './guess/routes'
+import type { Ctx } from './types'
 
-const t = initTRPC.context<HonoContext>().create()
+const t = initTRPC.context<Ctx>().create({
+  transformer: superjson,
+})
 
 export const protectedProcedure = t.procedure.use(async ({ ctx, next }) => {
-  if (!ctx.Variables.user) {
+  if (!ctx.user) {
     throw new Error('Unauthorized')
   }
 
@@ -15,12 +18,8 @@ export const protectedProcedure = t.procedure.use(async ({ ctx, next }) => {
 export const publicProcedure = t.procedure
 
 export const router = t.router({
-  greet: publicProcedure
-    .input(z.object({ name: z.string() }))
-    .output(z.string())
-    .query(({ input }) => {
-      return `Hello ${input.name}!`
-    }),
+  addGuess: addGuessMutation(publicProcedure),
+  latestUserGuess: latestUserGuessQuery(protectedProcedure),
 })
 
 export type Router = typeof router

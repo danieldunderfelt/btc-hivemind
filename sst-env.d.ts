@@ -36,6 +36,10 @@ declare module 'sst' {
       name: string
       type: 'sst.aws.Function'
     }
+    MOBULA_API_KEY: {
+      type: 'sst.sst.Secret'
+      value: string
+    }
     SMTP_PASSWORD: {
       type: 'sst.sst.Secret'
       value: string
