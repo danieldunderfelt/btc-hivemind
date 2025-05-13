@@ -1,6 +1,6 @@
 import { index, numeric, pgTable, pgView, text, timestamp, uuid } from 'drizzle-orm/pg-core'
 
-import { eq, isNotNull, sql } from 'drizzle-orm'
+import { eq, isNotNull, relations, sql } from 'drizzle-orm'
 import { pgEnum } from 'drizzle-orm/pg-core'
 import { user } from './auth-schema'
 
@@ -21,13 +21,17 @@ export const guesses = pgTable(
   (table) => [index('user_id_idx').on(table.userId)],
 )
 
+export const guessRelations = relations(guesses, ({ one }) => ({
+  guessResolutions: one(guessResolutions),
+}))
+
 export const guessResolutions = pgTable(
   'guess_resolutions',
   {
     id: uuid('id').primaryKey().defaultRandom(),
     guessId: uuid('guess_id')
       .notNull()
-      .references(() => guesses.id),
+      .references(() => guesses.id, { onDelete: 'cascade' }),
     resolvedPrice: numeric('resolved_price').notNull(),
     resolvedAt: timestamp('resolved_at').notNull(),
     createdAt: timestamp('created_at').defaultNow(),

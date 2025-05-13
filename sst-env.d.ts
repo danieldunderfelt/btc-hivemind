@@ -32,6 +32,14 @@ declare module 'sst' {
       type: 'sst.sst.Secret'
       value: string
     }
+    CMC_API_KEY: {
+      type: 'sst.sst.Secret'
+      value: string
+    }
+    CRYPTOCOMPARE_API_KEY: {
+      type: 'sst.sst.Secret'
+      value: string
+    }
     DatabaseMigrator: {
       name: string
       type: 'sst.aws.Function'

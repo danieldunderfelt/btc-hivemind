@@ -18,6 +18,8 @@ export const env = createEnv({
     API_PATH: z.string().min(1),
     MOBULA_API_KEY:
       process.env.NODE_ENV === 'production' ? z.string().min(1) : z.string().optional(),
+    CMC_API_KEY: z.string().min(1),
+    CRYPTOCOMPARE_API_KEY: z.string().min(1),
   },
   isServer: true,
   runtimeEnv: {
@@ -25,7 +27,9 @@ export const env = createEnv({
     WEB_URL: Resource.AppWeb.url || process.env.WEB_URL || 'http://localhost:5173',
     BETTER_AUTH_SECRET: Resource.BETTER_AUTH_SECRET.value,
     SMTP_PASSWORD: Resource.SMTP_PASSWORD.value,
-    MOBULA_API_KEY: process.env.NODE_ENV === 'production' ? Resource.MOBULA_API_KEY.value : '', // Free for development
+    MOBULA_API_KEY: Resource.MOBULA_API_KEY.value,
+    CMC_API_KEY: Resource.CMC_API_KEY.value,
+    CRYPTOCOMPARE_API_KEY: Resource.CRYPTOCOMPARE_API_KEY.value,
   },
   emptyStringAsUndefined: true,
 })

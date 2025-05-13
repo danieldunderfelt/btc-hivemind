@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import { getPrice } from '../btc/price'
 import type { Procedure } from '../types'
-import { getLatestGuess } from './readGuess'
+import { getLatestGuess, getResolvedGuesses } from './readGuess'
 import { guessTypeSchema } from './types'
 import { addGuess } from './writeGuess'
 
@@ -34,4 +34,8 @@ export function addGuessMutation(procedure: Procedure) {
 
 export function latestUserGuessQuery(procedure: Procedure) {
   return procedure.query(({ ctx }) => getLatestGuess(ctx))
+}
+
+export function resolvedGuessesQuery(procedure: Procedure) {
+  return procedure.query(({ ctx }) => getResolvedGuesses(ctx))
 }

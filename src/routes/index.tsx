@@ -1,8 +1,7 @@
 import BTCGuessFeature from '@/btc-guess/BTCGuessFeature'
-import GuessCard from '@/components/GuessCard'
+import GuessesList from '@/btc-guess/GuessesList'
+import BtcPriceDisplay from '@/components/BtcPriceDisplay'
 import PageContainer from '@/components/PageContainer'
-import { trpc } from '@/lib/trpc'
-import { useQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/')({
@@ -10,12 +9,11 @@ export const Route = createFileRoute('/')({
 })
 
 function Index() {
-  const latestUserGuessQuery = useQuery(trpc.latestUserGuess.queryOptions())
-
   return (
-    <PageContainer innerClassName="max-w-none">
+    <PageContainer innerClassName="max-w-none gap-4 flex flex-col">
+      <BtcPriceDisplay />
       <BTCGuessFeature />
-      {latestUserGuessQuery.data && <GuessCard guess={latestUserGuessQuery.data} />}
+      <GuessesList />
     </PageContainer>
   )
 }

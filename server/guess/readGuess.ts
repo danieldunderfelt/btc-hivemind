@@ -1,5 +1,5 @@
-import { desc, eq, isNull } from 'drizzle-orm'
-import { allGuesses, guessResolutions, guesses } from '../../db/schema/schema'
+import { and, desc, eq, isNull } from 'drizzle-orm'
+import { allGuesses, guessResolutions, guesses, resolvedGuesses } from '../../db/schema/schema'
 import type { Ctx } from '../types'
 
 export async function getPendingGuess(ctx: Ctx) {
@@ -7,20 +7,15 @@ export async function getPendingGuess(ctx: Ctx) {
     throw new Error('User not found')
   }
 
-  const guess = await ctx.db.query.guesses.findFirst({
-    with: {
-      guessResolutions: {
-        where: isNull(guessResolutions.resolvedAt),
-      },
-    },
-    where: eq(guesses.userId, ctx.user.id),
-  })
+  const guess = await ctx.db
+    .select()
+    .from(guesses)
+    .leftJoin(guessResolutions, eq(guesses.id, guessResolutions.guessId))
+    .where(and(eq(guesses.userId, ctx.user.id), isNull(guessResolutions.resolvedAt)))
+    .limit(1)
 
-  if (!guess) {
-    return null
-  }
-
-  return guess
+  console.log('guess', guess)
+  return guess[0] ?? null
 }
 
 export async function getLatestGuess(ctx: Ctx) {
@@ -40,4 +35,18 @@ export async function getLatestGuess(ctx: Ctx) {
   }
 
   return guess[0]
+}
+
+export async function getResolvedGuesses(ctx: Ctx) {
+  if (!ctx.user) {
+    throw new Error('User not found')
+  }
+
+  const guesses = await ctx.db
+    .select()
+    .from(resolvedGuesses)
+    .where(eq(resolvedGuesses.userId, ctx.user.id))
+
+  // TODO: Paginate, maybe?
+  return guesses
 }

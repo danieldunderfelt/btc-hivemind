@@ -19,6 +19,8 @@ export default $config({
     const betterAuthSecret = new sst.Secret('BETTER_AUTH_SECRET')
     const smtpSecret = new sst.Secret('SMTP_PASSWORD')
     const mobulaApiKey = new sst.Secret('MOBULA_API_KEY')
+    const coinmarketcapApiKey = new sst.Secret('CMC_API_KEY')
+    const cryptoCompareApiKey = new sst.Secret('CRYPTOCOMPARE_API_KEY')
 
     const domain =
       $app.stage === 'production'
@@ -103,7 +105,16 @@ export default $config({
       dev: false,
       environment: env,
       runtime: 'nodejs22.x',
-      link: [database, betterAuthSecret, smtpSecret, web, mobulaApiKey, router],
+      link: [
+        database,
+        betterAuthSecret,
+        smtpSecret,
+        web,
+        mobulaApiKey,
+        router,
+        coinmarketcapApiKey,
+        cryptoCompareApiKey,
+      ],
     })
 
     const migrator = new sst.aws.Function('DatabaseMigrator', {
@@ -132,7 +143,16 @@ export default $config({
         command: 'bun dev:server',
       },
       environment: env,
-      link: [database, betterAuthSecret, smtpSecret, web, mobulaApiKey, router],
+      link: [
+        database,
+        betterAuthSecret,
+        smtpSecret,
+        web,
+        mobulaApiKey,
+        router,
+        coinmarketcapApiKey,
+        cryptoCompareApiKey,
+      ],
     })
 
     return {

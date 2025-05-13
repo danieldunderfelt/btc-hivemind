@@ -4,7 +4,7 @@ import { emailOTP } from 'better-auth/plugins'
 import nodemailer from 'nodemailer'
 import { getDb } from '../db'
 import { env } from '../env'
-import { mergePaths } from '../utils'
+import { mergePaths } from '../lib/utils'
 import { getVerificationEmail } from './verificationEmail'
 
 export const auth = betterAuth({

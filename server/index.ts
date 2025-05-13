@@ -4,9 +4,9 @@ import { cors } from 'hono/cors'
 import { auth } from './auth/config'
 import { getDb } from './db'
 import { env } from './env'
+import { mergePaths } from './lib/utils'
 import { router } from './trpc'
 import type { HonoContext } from './types'
-import { mergePaths } from './utils'
 
 const app = new Hono<HonoContext>().basePath(env.API_PATH)
 const db = getDb()
