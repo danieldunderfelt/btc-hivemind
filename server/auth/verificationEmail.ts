@@ -17,11 +17,11 @@ export async function getVerificationEmail({
         React.Fragment,
         null,
         React.createElement('p', null, `Hello ${email.split('@')[0]},`),
-        React.createElement('p', null, 'Your verification code for BitGuessr is:'),
+        React.createElement('p', null, 'Your verification code for BitFlip is:'),
         React.createElement('p', { style: { fontSize: '24px', fontWeight: 'bold' } }, otp),
       ),
       heading: 'Verify Email',
-      siteName: 'BitGuessr',
+      siteName: 'BitFlip',
       baseUrl: env.WEB_URL,
     }),
   )

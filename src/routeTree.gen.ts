@@ -11,17 +11,10 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
-import { Route as GuessImport } from './routes/guess'
 import { Route as IndexImport } from './routes/index'
 import { Route as AuthPathnameImport } from './routes/auth/$pathname'
 
 // Create/Update Routes
-
-const GuessRoute = GuessImport.update({
-  id: '/guess',
-  path: '/guess',
-  getParentRoute: () => rootRoute,
-} as any)
 
 const IndexRoute = IndexImport.update({
   id: '/',
@@ -46,13 +39,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexImport
       parentRoute: typeof rootRoute
     }
-    '/guess': {
-      id: '/guess'
-      path: '/guess'
-      fullPath: '/guess'
-      preLoaderRoute: typeof GuessImport
-      parentRoute: typeof rootRoute
-    }
     '/auth/$pathname': {
       id: '/auth/$pathname'
       path: '/auth/$pathname'
@@ -67,41 +53,36 @@ declare module '@tanstack/react-router' {
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/guess': typeof GuessRoute
   '/auth/$pathname': typeof AuthPathnameRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/guess': typeof GuessRoute
   '/auth/$pathname': typeof AuthPathnameRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
-  '/guess': typeof GuessRoute
   '/auth/$pathname': typeof AuthPathnameRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/guess' | '/auth/$pathname'
+  fullPaths: '/' | '/auth/$pathname'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/guess' | '/auth/$pathname'
-  id: '__root__' | '/' | '/guess' | '/auth/$pathname'
+  to: '/' | '/auth/$pathname'
+  id: '__root__' | '/' | '/auth/$pathname'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  GuessRoute: typeof GuessRoute
   AuthPathnameRoute: typeof AuthPathnameRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  GuessRoute: GuessRoute,
   AuthPathnameRoute: AuthPathnameRoute,
 }
 
@@ -116,15 +97,11 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
-        "/guess",
         "/auth/$pathname"
       ]
     },
     "/": {
       "filePath": "index.tsx"
-    },
-    "/guess": {
-      "filePath": "guess.tsx"
     },
     "/auth/$pathname": {
       "filePath": "auth/$pathname.tsx"

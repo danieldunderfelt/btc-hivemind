@@ -23,4 +23,5 @@ export default defineConfig({
       '@server': path.resolve(__dirname, './server'),
     },
   },
+  base: '/',
 })

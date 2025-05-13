@@ -4,7 +4,7 @@ export default $config({
   app(input) {
     return {
       name: 'btc-hivemind',
-      removal: input?.stage === 'production' ? 'retain' : 'remove',
+      removal: 'remove', // input?.stage === 'production' ? 'retain' : 'remove',
       protect: false, //['production'].includes(input?.stage),
       home: 'aws',
       region: 'eu-central-1',
@@ -20,19 +20,29 @@ export default $config({
     const smtpSecret = new sst.Secret('SMTP_PASSWORD')
     const mobulaApiKey = new sst.Secret('MOBULA_API_KEY')
 
+    const domain =
+      $app.stage === 'production'
+        ? 'verycool.dev'
+        : $app.stage === 'dev'
+          ? 'dev.verycool.dev'
+          : `${$app.stage}.dev.verycool.dev`
+
+    function subdomain(name: string) {
+      if ($app.stage === 'production') return `${name}.${domain}`
+      return `${name}-${domain}`
+    }
+
     const env = {
       NODE_ENV: $dev ? 'development' : 'production',
       SMTP_HOST: $dev ? '' : 'smtppro.zoho.com',
       SMTP_PORT: $dev ? '' : '465',
       SMTP_FROM_EMAIL: $dev ? '' : 'daniel@dunderfelt.consulting',
-      API_URL: $dev ? 'http://localhost:3000' : 'https://bitguessr.developsuperpowers.com',
+      API_URL: $dev ? 'http://localhost:3000' : `https://${subdomain('bitflip-api')}`,
       DATABASE_URL: 'postgresql://postgres:password@localhost:5432/local', // Local only
-      API_PATH: '/api',
+      API_PATH: '/',
     }
 
-    const vpc = new sst.aws.Vpc('AppVPC', {
-      bastion: true,
-    })
+    const vpc = new sst.aws.Vpc('AppVPC')
 
     const database = new sst.aws.Aurora('AppDB', {
       engine: 'postgres',
@@ -41,6 +51,7 @@ export default $config({
         max: '2 ACU',
       },
       vpc,
+      dataApi: true,
       dev: {
         username: 'postgres',
         password: 'password',
@@ -50,7 +61,10 @@ export default $config({
     })
 
     const router = new sst.aws.Router('Router', {
-      domain: 'bitguessr.developsuperpowers.com',
+      domain: {
+        name: domain,
+        aliases: [`*.${domain}`],
+      },
     })
 
     const web = new sst.aws.StaticSite('AppWeb', {
@@ -69,8 +83,27 @@ export default $config({
       },
       router: {
         instance: router,
-        path: '/',
+        domain: subdomain('bitflip'),
       },
+    })
+
+    const server = new sst.aws.Function('AppService', {
+      handler: 'server/handler.handler',
+      timeout: '1 minute',
+      url: {
+        router: {
+          instance: router,
+          domain: subdomain('bitflip-api'),
+        },
+        cors: {
+          allowOrigins: [web.url],
+          allowCredentials: true,
+        },
+      },
+      dev: false,
+      environment: env,
+      runtime: 'nodejs22.x',
+      link: [database, betterAuthSecret, smtpSecret, web, mobulaApiKey, router],
     })
 
     const migrator = new sst.aws.Function('DatabaseMigrator', {
@@ -78,6 +111,7 @@ export default $config({
       link: [database],
       vpc,
       timeout: '1 minute',
+      dev: false,
       copyFiles: [
         {
           from: 'drizzle',
@@ -86,27 +120,10 @@ export default $config({
       ],
     })
 
-    let server: sst.aws.Function
-
     if (!$dev) {
       new aws.lambda.Invocation('DatabaseMigratorInvocation', {
         input: Date.now().toString(),
         functionName: migrator.name,
-      })
-
-      server = new sst.aws.Function('AppService', {
-        handler: 'server/handler.handler',
-        timeout: '1 minute',
-        url: {
-          router: {
-            instance: router,
-            path: env.API_PATH,
-            domain: 'bitguessr.developsuperpowers.com',
-          },
-        },
-        environment: env,
-        runtime: 'nodejs22.x',
-        link: [database, betterAuthSecret, smtpSecret, web, mobulaApiKey, router],
       })
     }
 
@@ -119,7 +136,7 @@ export default $config({
     })
 
     return {
-      api: $dev ? `http://localhost:3000${env.API_PATH}` : server!.url,
+      api: $dev ? `http://localhost:3000` : server.url,
       web: web.url,
       database: {
         host: database.host,

@@ -1,3 +1,4 @@
+import BTCGuessFeature from '@/btc-guess/BTCGuessFeature'
 import GuessCard from '@/components/GuessCard'
 import PageContainer from '@/components/PageContainer'
 import { trpc } from '@/lib/trpc'
@@ -13,6 +14,7 @@ function Index() {
 
   return (
     <PageContainer innerClassName="max-w-none">
+      <BTCGuessFeature />
       {latestUserGuessQuery.data && <GuessCard guess={latestUserGuessQuery.data} />}
     </PageContainer>
   )

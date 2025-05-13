@@ -16,8 +16,12 @@ declare module 'sst' {
       type: 'sst.aws.Aurora'
       username: string
     }
+    AppService: {
+      name: string
+      type: 'sst.aws.Function'
+      url: string
+    }
     AppVPC: {
-      bastion: string
       type: 'sst.aws.Vpc'
     }
     AppWeb: {

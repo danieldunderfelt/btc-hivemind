@@ -58,7 +58,7 @@ export const auth = betterAuth({
         const mailOptions = {
           from: `"Daniel Dunderfelt" <${env.SMTP_FROM_EMAIL}>`,
           to: email,
-          subject: `Your BitGuessr Verification Code`,
+          subject: `Your BitFlip Verification Code`,
           text: `Your verification code is: ${otp}`,
           html,
         }

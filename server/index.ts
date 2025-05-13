@@ -11,17 +11,19 @@ import { mergePaths } from './utils'
 const app = new Hono<HonoContext>().basePath(env.API_PATH)
 const db = getDb()
 
-app.use(
-  '*',
-  cors({
-    origin: env.WEB_URL,
-    allowHeaders: ['Content-Type', 'Authorization'],
-    allowMethods: ['GET', 'POST', 'OPTIONS'],
-    exposeHeaders: ['Content-Length'],
-    maxAge: 600,
-    credentials: true,
-  }),
-)
+if (env.NODE_ENV === 'development') {
+  app.use(
+    '*',
+    cors({
+      origin: env.WEB_URL,
+      allowHeaders: ['Content-Type', 'Authorization'],
+      allowMethods: ['GET', 'POST', 'OPTIONS'],
+      exposeHeaders: ['Content-Length'],
+      maxAge: 600,
+      credentials: true,
+    }),
+  )
+}
 
 app.use('*', async (ctx, next) => {
   const session = await auth.api.getSession({ headers: ctx.req.raw.headers })
