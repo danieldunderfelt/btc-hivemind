@@ -1,3 +1,4 @@
+import { sql } from 'drizzle-orm'
 import { guesses } from '../../db/schema/schema'
 import type { Ctx } from '../types'
 import { getPendingGuess } from './readGuess'
@@ -21,7 +22,7 @@ export async function addGuess(
     .insert(guesses)
     .values({
       userId: ctx.user.id,
-      guess,
+      guess: sql`${guess}::guess_type`,
       guessPrice: price.toString(),
       guessedAt,
     })
