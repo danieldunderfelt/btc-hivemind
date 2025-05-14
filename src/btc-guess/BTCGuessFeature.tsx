@@ -2,10 +2,33 @@ import GuessCard from '@/btc-guess/GuessCard'
 import { Button } from '@/components/ui/button'
 import { trpc } from '@/lib/trpc'
 import { useMutation, useQuery } from '@tanstack/react-query'
+import { addMinutes, isBefore } from 'date-fns'
 
 export default function BTCGuessFeature() {
   const addGuessMutation = useMutation(trpc.addGuess.mutationOptions())
-  const latestUserGuessQuery = useQuery(trpc.latestUserGuess.queryOptions())
+  const latestUserGuessQuery = useQuery({
+    ...trpc.latestUserGuess.queryOptions(),
+    refetchInterval(query) {
+      const guessedAt = query.state.data?.guessedAt
+      const isResolved = query.state.data?.resolvedAt
+
+      if (!guessedAt || isResolved) {
+        return false
+      }
+
+      const shouldBeResolved = isBefore(addMinutes(guessedAt, 1), new Date())
+
+      if (shouldBeResolved) {
+        return 1000
+      }
+
+      return 1000 * 30
+    },
+  })
+
+  const refreshGuess = () => {
+    latestUserGuessQuery.refetch()
+  }
 
   return (
     <div className="flex flex-col gap-4">
@@ -22,7 +45,7 @@ export default function BTCGuessFeature() {
         </Button>
       </div>
       {latestUserGuessQuery.data ? (
-        <GuessCard guess={latestUserGuessQuery.data} />
+        <GuessCard guess={latestUserGuessQuery.data} refreshGuess={refreshGuess} />
       ) : (
         <div className="rounded-lg border p-4 shadow-sm">
           <p className="text-gray-600 text-sm">

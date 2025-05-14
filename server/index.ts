@@ -2,10 +2,10 @@ import { trpcServer } from '@hono/trpc-server'
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 import { auth } from './auth/config'
-import { getDb } from './db'
 import { env } from './env'
+import { getDb } from './lib/db'
+import { router } from './lib/trpc'
 import { mergePaths } from './lib/utils'
-import { router } from './trpc'
 import type { HonoContext } from './types'
 
 const app = new Hono<HonoContext>().basePath(env.API_PATH)

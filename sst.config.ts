@@ -18,8 +18,6 @@ export default $config({
   async run() {
     const betterAuthSecret = new sst.Secret('BETTER_AUTH_SECRET')
     const smtpSecret = new sst.Secret('SMTP_PASSWORD')
-    const mobulaApiKey = new sst.Secret('MOBULA_API_KEY')
-    const coinmarketcapApiKey = new sst.Secret('CMC_API_KEY')
     const cryptoCompareApiKey = new sst.Secret('CRYPTOCOMPARE_API_KEY')
 
     const domain =
@@ -42,6 +40,9 @@ export default $config({
       API_URL: $dev ? 'http://localhost:3000' : `https://${subdomain('bitflip-api')}`,
       DATABASE_URL: 'postgresql://postgres:password@localhost:5432/local', // Local only
       API_PATH: '/',
+      SST_AWS_ACCESS_KEY_ID: $interpolate`${process.env.SST_AWS_ACCESS_KEY_ID}`,
+      SST_AWS_SECRET_ACCESS_KEY: $interpolate`${process.env.SST_AWS_SECRET_ACCESS_KEY}`,
+      SST_AWS_SESSION_TOKEN: $interpolate`${process.env.SST_AWS_SESSION_TOKEN}`,
     }
 
     const vpc = new sst.aws.Vpc('AppVPC')
@@ -89,6 +90,13 @@ export default $config({
       },
     })
 
+    const queue = new sst.aws.Queue('AppQueue')
+    queue.subscribe({
+      handler: 'server/queueHandler.handler',
+      link: [database, betterAuthSecret, smtpSecret, web, router, cryptoCompareApiKey, queue],
+      environment: env,
+    })
+
     const server = new sst.aws.Function('AppService', {
       handler: 'server/handler.handler',
       timeout: '1 minute',
@@ -105,16 +113,7 @@ export default $config({
       dev: false,
       environment: env,
       runtime: 'nodejs22.x',
-      link: [
-        database,
-        betterAuthSecret,
-        smtpSecret,
-        web,
-        mobulaApiKey,
-        router,
-        coinmarketcapApiKey,
-        cryptoCompareApiKey,
-      ],
+      link: [database, betterAuthSecret, smtpSecret, web, router, cryptoCompareApiKey, queue],
     })
 
     const migrator = new sst.aws.Function('DatabaseMigrator', {
@@ -143,16 +142,7 @@ export default $config({
         command: 'bun dev:server',
       },
       environment: env,
-      link: [
-        database,
-        betterAuthSecret,
-        smtpSecret,
-        web,
-        mobulaApiKey,
-        router,
-        coinmarketcapApiKey,
-        cryptoCompareApiKey,
-      ],
+      link: [database, betterAuthSecret, smtpSecret, web, router, cryptoCompareApiKey, queue],
     })
 
     return {

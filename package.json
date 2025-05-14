@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-rds-data": "^3.806.0",
+    "@aws-sdk/client-sqs": "^3.808.0",
     "@daveyplate/better-auth-ui": "^1.5.18",
     "@hono/trpc-server": "^0.3.4",
     "@number-flow/react": "^0.5.9",
@@ -31,6 +32,7 @@
     "better-auth": "^1.2.7",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "date-fns": "^4.1.0",
     "drizzle-orm": "^0.43.1",
     "drizzle-zod": "^0.7.1",
     "elysia": "^1.3.1",
@@ -44,7 +46,7 @@
     "react-dom": "^19.1.0",
     "recharts": "^2.15.3",
     "sonner": "^2.0.3",
-    "sst": "3.14.12",
+    "sst": "3.14.19",
     "superjson": "^2.2.2",
     "tailwind-merge": "^3.2.0",
     "zod": "^3.24.4"

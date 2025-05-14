@@ -2,8 +2,8 @@ import { RDSDataClient } from '@aws-sdk/client-rds-data'
 import { drizzle } from 'drizzle-orm/aws-data-api/pg'
 import { drizzle as localDrizzle } from 'drizzle-orm/node-postgres'
 import { Resource } from 'sst'
-import { fullSchema } from '../db/fullSchema'
-import { env } from './env'
+import { fullSchema } from '../../db/fullSchema'
+import { env } from '../env'
 
 function createDatabase() {
   if (env.NODE_ENV === 'development') {

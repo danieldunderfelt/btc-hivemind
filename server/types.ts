@@ -1,6 +1,6 @@
 import type { auth } from './auth/config'
-import type { getDb } from './db'
-import type { protectedProcedure, publicProcedure } from './trpc'
+import type { getDb } from './lib/db'
+import type { protectedProcedure, publicProcedure } from './lib/trpc'
 
 export type Ctx = {
   db: ReturnType<typeof getDb>

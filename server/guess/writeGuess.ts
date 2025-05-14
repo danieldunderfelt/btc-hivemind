@@ -1,5 +1,6 @@
-import { sql } from 'drizzle-orm'
-import { guesses } from '../../db/schema/schema'
+import { sendMessage } from '@server/lib/queue'
+import { guesses } from 'db/schema/schema'
+import { sql } from 'drizzle-orm/sql'
 import type { Ctx } from '../types'
 import { getPendingGuess } from './readGuess'
 import type { GuessType } from './types'
@@ -27,6 +28,13 @@ export async function addGuess(
       guessedAt,
     })
     .returning()
+
+  await sendMessage(
+    JSON.stringify({
+      guessId: guessRow[0].id,
+      userId: ctx.user.id,
+    }),
+  )
 
   return guessRow[0]
 }

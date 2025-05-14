@@ -2,8 +2,13 @@ import { getPrice } from '@server/btc/price'
 import { initTRPC } from '@trpc/server'
 import { HTTPException } from 'hono/http-exception'
 import superjson from 'superjson'
-import { addGuessMutation, latestUserGuessQuery, resolvedGuessesQuery } from './guess/routes'
-import type { Ctx } from './types'
+import {
+  addGuessMutation,
+  latestUserGuessQuery,
+  resolveGuessMutation,
+  resolvedGuessesQuery,
+} from '../guess/routes'
+import type { Ctx } from '../types'
 
 const t = initTRPC.context<Ctx>().create({
   transformer: superjson,
@@ -30,9 +35,8 @@ export const router = t.router({
   addGuess: addGuessMutation(publicProcedure),
   latestUserGuess: latestUserGuessQuery(protectedProcedure),
   resolvedGuesses: resolvedGuessesQuery(protectedProcedure),
-  btcPrice: publicProcedure.query(async ({ ctx }) => {
-    return await getPrice()
-  }),
+  resolveGuess: resolveGuessMutation(protectedProcedure),
+  btcPrice: publicProcedure.query(async ({ ctx }) => getPrice()),
 })
 
 export type Router = typeof router

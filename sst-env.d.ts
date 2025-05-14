@@ -16,6 +16,10 @@ declare module 'sst' {
       type: 'sst.aws.Aurora'
       username: string
     }
+    AppQueue: {
+      type: 'sst.aws.Queue'
+      url: string
+    }
     AppService: {
       name: string
       type: 'sst.aws.Function'
@@ -32,10 +36,6 @@ declare module 'sst' {
       type: 'sst.sst.Secret'
       value: string
     }
-    CMC_API_KEY: {
-      type: 'sst.sst.Secret'
-      value: string
-    }
     CRYPTOCOMPARE_API_KEY: {
       type: 'sst.sst.Secret'
       value: string
@@ -43,10 +43,6 @@ declare module 'sst' {
     DatabaseMigrator: {
       name: string
       type: 'sst.aws.Function'
-    }
-    MOBULA_API_KEY: {
-      type: 'sst.sst.Secret'
-      value: string
     }
     Router: {
       type: 'sst.aws.Router'

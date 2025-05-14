@@ -9,7 +9,7 @@ async function cryptoComparePrice() {
     ? `${url}&extraParams=bitflip.verycool.dev&api_key=${env.CRYPTOCOMPARE_API_KEY}`
     : url
 
-  const data = await cachedValue(urlWithApiKey, 1000 * 15, async () => {
+  const data = await cachedValue(urlWithApiKey, 1000 * 10, async () => {
     const response = await fetch(urlWithApiKey).then((res) => res.json())
     return response.USD as number
   })

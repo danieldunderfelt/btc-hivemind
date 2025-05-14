@@ -1,0 +1,2 @@
+DROP VIEW "public"."all_guesses";--> statement-breakpoint
+CREATE VIEW "public"."all_guesses" AS (select "guesses"."id", "guesses"."user_id", "guesses"."guess", "guesses"."guess_price", "guesses"."guessed_at", "resolved_guesses"."resolved_at", "resolved_guesses"."resolved_price", "is_correct", "guesses"."start_resolving_at" from "guesses" left join "resolved_guesses" on "guesses"."id" = "resolved_guesses"."id");

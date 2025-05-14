@@ -14,7 +14,6 @@ export async function getPendingGuess(ctx: Ctx) {
     .where(and(eq(guesses.userId, ctx.user.id), isNull(guessResolutions.resolvedAt)))
     .limit(1)
 
-  console.log('guess', guess)
   return guess[0] ?? null
 }
 
@@ -34,7 +33,7 @@ export async function getLatestGuess(ctx: Ctx) {
     return null
   }
 
-  return guess[0]
+  return guess[0] ?? null
 }
 
 export async function getResolvedGuesses(ctx: Ctx) {
@@ -49,4 +48,12 @@ export async function getResolvedGuesses(ctx: Ctx) {
 
   // TODO: Paginate, maybe?
   return guesses
+}
+
+export async function isGuessResolved(guessId: string, ctx: Ctx) {
+  const guessResolution = await ctx.db.query.guessResolutions.findFirst({
+    where: and(eq(guessResolutions.guessId, guessId), isNull(guessResolutions.resolvedAt)),
+  })
+
+  return !!guessResolution
 }

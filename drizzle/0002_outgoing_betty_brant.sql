@@ -1,0 +1,1 @@
+CREATE INDEX "guessed_at_idx" ON "guesses" USING btree ("guessed_at");

@@ -8,7 +8,7 @@ import { RefreshCwIcon } from 'lucide-react'
 export default function BtcPriceDisplay() {
   const btcPriceQuery = useQuery({
     ...trpc.btcPrice.queryOptions(),
-    refetchInterval: 1000 * 30,
+    refetchInterval: 1000 * 60 * 5,
   })
 
   const isLoading =

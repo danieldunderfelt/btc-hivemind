@@ -1,3 +1,4 @@
+import { resolveGuess } from '@server/guess/resolveGuess'
 import { z } from 'zod'
 import { getPrice } from '../btc/price'
 import type { Procedure } from '../types'
@@ -32,6 +33,17 @@ export function addGuessMutation(procedure: Procedure) {
   })
 }
 
+export function resolveGuessMutation(procedure: Procedure) {
+  return procedure.input(z.object({ guessId: z.string() })).mutation(async ({ input, ctx }) => {
+    const user = ctx.user
+
+    if (!user) {
+      return null
+    }
+
+    return resolveGuess({ guessId: input.guessId, userId: user.id }, ctx)
+  })
+}
 export function latestUserGuessQuery(procedure: Procedure) {
   return procedure.query(({ ctx }) => getLatestGuess(ctx))
 }

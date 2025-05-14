@@ -16,10 +16,10 @@ export const env = createEnv({
       process.env.NODE_ENV === 'production' ? z.string().min(1) : z.string().optional(),
     API_URL: z.string().url(),
     API_PATH: z.string().min(1),
-    MOBULA_API_KEY:
-      process.env.NODE_ENV === 'production' ? z.string().min(1) : z.string().optional(),
-    CMC_API_KEY: z.string().min(1),
     CRYPTOCOMPARE_API_KEY: z.string().min(1),
+    SST_AWS_ACCESS_KEY_ID: z.string().min(1),
+    SST_AWS_SECRET_ACCESS_KEY: z.string().min(1),
+    SST_AWS_SESSION_TOKEN: z.string().min(1),
   },
   isServer: true,
   runtimeEnv: {
@@ -27,8 +27,6 @@ export const env = createEnv({
     WEB_URL: Resource.AppWeb.url || process.env.WEB_URL || 'http://localhost:5173',
     BETTER_AUTH_SECRET: Resource.BETTER_AUTH_SECRET.value,
     SMTP_PASSWORD: Resource.SMTP_PASSWORD.value,
-    MOBULA_API_KEY: Resource.MOBULA_API_KEY.value,
-    CMC_API_KEY: Resource.CMC_API_KEY.value,
     CRYPTOCOMPARE_API_KEY: Resource.CRYPTOCOMPARE_API_KEY.value,
   },
   emptyStringAsUndefined: true,
