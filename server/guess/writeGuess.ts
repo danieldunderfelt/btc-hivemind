@@ -1,4 +1,3 @@
-import { sendMessage } from '@server/lib/queue'
 import { guesses } from 'db/schema/schema'
 import { sql } from 'drizzle-orm/sql'
 import type { Ctx } from '../types'
@@ -28,14 +27,6 @@ export async function addGuess(
       guessedAt,
     })
     .returning()
-
-  await sendMessage(
-    {
-      guessId: guessRow[0].id,
-      userId: ctx.user.id,
-    },
-    60,
-  )
 
   return guessRow[0]
 }

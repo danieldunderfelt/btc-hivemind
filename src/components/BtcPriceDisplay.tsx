@@ -1,7 +1,7 @@
+import PriceDisplay from '@/components/PriceDisplay'
 import { Button } from '@/components/ui/button'
 import { trpc } from '@/lib/trpc'
 import { cn } from '@/lib/utils'
-import NumberFlow from '@number-flow/react'
 import { useQuery } from '@tanstack/react-query'
 import { RefreshCwIcon } from 'lucide-react'
 
@@ -18,7 +18,7 @@ export default function BtcPriceDisplay() {
     btcPriceQuery.isLoading
 
   return (
-    <div className="relative flex flex-col items-center gap-2 rounded-lg border p-4">
+    <div className="relative flex flex-col items-center gap-2 py-4">
       <Button
         className="absolute top-2 right-2"
         onClick={() => btcPriceQuery.refetch()}
@@ -28,13 +28,9 @@ export default function BtcPriceDisplay() {
       </Button>
       <h2 className="font-light text-lg">Bitcoin Price Now</h2>
       {btcPriceQuery.data ? (
-        <NumberFlow
-          value={btcPriceQuery.data}
-          className="font-semibold text-2xl"
-          format={{ notation: 'standard', style: 'currency', currency: 'USD' }}
-        />
+        <PriceDisplay price={btcPriceQuery.data} priceClassName="text-2xl font-semibold" />
       ) : (
-        <div className="h-8 w-52 animate-pulse rounded-md bg-gray-600" />
+        <div className="h-8 w-52 animate-pulse rounded-md bg-neutral-700" />
       )}
     </div>
   )

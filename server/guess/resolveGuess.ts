@@ -89,7 +89,6 @@ export async function resolveGuess(
       throw new Error('Failed to resolve guess')
     }
 
-    console.log('Guess resolution', guessResolution)
     return 'success'
   } catch (error) {
     console.error('Error resolving guess', error)

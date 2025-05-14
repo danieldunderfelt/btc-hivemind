@@ -1,4 +1,5 @@
 import { resolveGuess } from '@server/guess/resolveGuess'
+import { sendMessage } from '@server/lib/queue'
 import { z } from 'zod'
 import { getPrice } from '../btc/price'
 import type { Procedure } from '../types'
@@ -28,7 +29,14 @@ export function addGuessMutation(procedure: Procedure) {
       ctx,
     )
 
-    // TODO: Schedule guess resolution a minute from now
+    await sendMessage(
+      {
+        guessId: guess.id,
+        userId: user.id,
+      },
+      60,
+    )
+
     return guess
   })
 }

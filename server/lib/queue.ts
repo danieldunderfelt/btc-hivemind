@@ -14,15 +14,13 @@ const sqs = new SQSClient({
 
 export async function sendMessage(messageData: Record<string, unknown>, delaySeconds = 0) {
   try {
-    const result = await sqs.send(
+    await sqs.send(
       new SendMessageCommand({
         QueueUrl: Resource.AppQueue.url,
         MessageBody: JSON.stringify(messageData),
         DelaySeconds: delaySeconds,
       }),
     )
-
-    console.log('Message sent to queue', result)
   } catch (error) {
     console.error('Error sending message to queue', error)
   }

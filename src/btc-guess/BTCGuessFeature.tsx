@@ -2,14 +2,29 @@ import GuessCard from '@/btc-guess/GuessCard'
 import GuessesList from '@/btc-guess/GuessesList'
 import { Button } from '@/components/ui/button'
 import { trpc } from '@/lib/trpc'
-import { useMutation, useQuery } from '@tanstack/react-query'
+import type { GuessType, GuessViewRowType } from '@server/guess/types'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { addMinutes, isBefore } from 'date-fns'
 
+function createOptimisticGuess(guess: GuessType) {
+  return {
+    guessId: 'optimistic',
+    userId: 'optimistic',
+    guess,
+    guessedAt: new Date(),
+    guessPrice: 'optimistic',
+    resolvedAt: null,
+    resolvedPrice: null,
+    isCorrect: false,
+    startResolvingAt: null,
+  } satisfies GuessViewRowType
+}
+
 export default function BTCGuessFeature() {
-  const addGuessMutation = useMutation(trpc.addGuess.mutationOptions())
+  const queryClient = useQueryClient()
   const resolvedGuessesQuery = useQuery(trpc.resolvedGuesses.queryOptions())
 
-  const latestUserGuessQuery = useQuery({
+  const latestGuessQuery = useQuery({
     ...trpc.latestUserGuess.queryOptions(),
     refetchInterval(query) {
       const guessedAt = query.state.data?.guessedAt
@@ -25,44 +40,75 @@ export default function BTCGuessFeature() {
         return 1000
       }
 
-      return 1000 * 30
+      return 1000 * 10
     },
   })
 
+  const latestGuessQueryKey = trpc.latestUserGuess.queryKey()
+
+  const addGuessMutation = useMutation(
+    trpc.addGuess.mutationOptions({
+      onMutate: async (variables) => {
+        await queryClient.cancelQueries({ queryKey: latestGuessQueryKey })
+        const previousData = queryClient.getQueryData<GuessViewRowType | null>(latestGuessQueryKey)
+
+        // Optimistically update to the new value
+        const nextQueryData = queryClient.setQueryData<GuessViewRowType | null>(
+          latestGuessQueryKey,
+          () => createOptimisticGuess(variables.guess),
+        )
+
+        return {
+          optimisticUpdateResult: nextQueryData,
+          previousData,
+        }
+      },
+      onError: (err, variables, context) => {
+        if (context?.previousData !== undefined) {
+          queryClient.setQueryData(latestGuessQueryKey, () => context.previousData || undefined)
+        }
+
+        return err
+      },
+      onSuccess: () => {
+        refreshGuess()
+      },
+    }),
+  )
+
   const refreshGuess = () => {
-    latestUserGuessQuery.refetch()
+    latestGuessQuery.refetch()
     resolvedGuessesQuery.refetch()
   }
 
   return (
-    <div className="flex flex-col gap-8">
-      <div className="flex justify-center gap-2">
-        <Button
-          onClick={() =>
-            addGuessMutation.mutate(
-              { guess: 'up' },
-              {
-                onSuccess: refreshGuess,
-              },
-            )
-          }
-          disabled={!!latestUserGuessQuery.data}>
-          Guess UP
-        </Button>
-        <Button
-          onClick={() => addGuessMutation.mutate({ guess: 'down' })}
-          disabled={!!latestUserGuessQuery.data}>
-          Guess DOWN
-        </Button>
-      </div>
-      {latestUserGuessQuery.data ? (
-        <GuessCard guess={latestUserGuessQuery.data} refreshGuess={refreshGuess} />
-      ) : (
-        <div className="rounded-lg border p-4 shadow-sm">
-          <p className="text-gray-600 text-sm">
-            No guesses currently. Make a guess by clicking either button above!
-          </p>
+    <div className="flex flex-col gap-4 pb-4">
+      {!latestGuessQuery.data ? (
+        <div className="flex justify-center gap-2 pb-4">
+          <Button
+            onClick={() =>
+              addGuessMutation.mutate(
+                { guess: 'up' },
+                {
+                  onSuccess: refreshGuess,
+                },
+              )
+            }
+            disabled={!!latestGuessQuery.data}>
+            Guess UP
+          </Button>
+          <Button
+            onClick={() => addGuessMutation.mutate({ guess: 'down' })}
+            disabled={!!latestGuessQuery.data}>
+            Guess DOWN
+          </Button>
         </div>
+      ) : (
+        <GuessCard
+          key={latestGuessQuery.data.guessId}
+          guess={latestGuessQuery.data}
+          refreshGuess={refreshGuess}
+        />
       )}
       <div className="flex flex-col gap-4">
         <h2 className="font-bold text-lg">Previous guesses</h2>

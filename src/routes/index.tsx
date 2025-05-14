@@ -9,7 +9,7 @@ export const Route = createFileRoute('/')({
 
 function Index() {
   return (
-    <PageContainer innerClassName="max-w-none gap-4 flex flex-col">
+    <PageContainer innerClassName="max-w-none gap-6 flex flex-col">
       <BtcPriceDisplay />
       <BTCGuessFeature />
     </PageContainer>
