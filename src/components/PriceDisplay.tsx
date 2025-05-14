@@ -15,13 +15,17 @@ export default function PriceDisplay({
   const isOptimistic = !price || price === 'optimistic'
 
   return (
-    <div className={cn('flex flex-col items-start gap-1', className)}>
-      {label && <span className="text-gray-500 text-xs uppercase">{label}</span>}
-      <span className={cn(isOptimistic && 'h-6 w-48 animate-pulse rounded-md bg-neutral-700')}>
+    <div className={cn('-mb-1.5 flex flex-col items-start gap-1', className)}>
+      {label && <span className="text-gray-500 text-xs/none uppercase">{label}</span>}
+      <span
+        className={cn(
+          'flex h-8 items-center',
+          isOptimistic && 'w-48 animate-pulse rounded-md bg-neutral-700',
+        )}>
         {!!price && !isOptimistic && (
           <NumberFlow
             value={Number.parseFloat(String(price))}
-            className={cn('font-medium text-lg', priceClassName)}
+            className={cn('font-medium text-lg/8', priceClassName)}
             format={{ notation: 'standard', style: 'currency', currency: 'USD' }}
           />
         )}

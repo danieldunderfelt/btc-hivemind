@@ -5,6 +5,7 @@ import { trpc } from '@/lib/trpc'
 import type { GuessType, GuessViewRowType } from '@server/guess/types'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { addMinutes, isBefore } from 'date-fns'
+import { ArrowDownIcon, ArrowUpIcon } from 'lucide-react'
 
 function createOptimisticGuess(guess: GuessType) {
   return {
@@ -82,35 +83,33 @@ export default function BTCGuessFeature() {
   }
 
   return (
-    <div className="flex flex-col gap-4 pb-4">
+    <div className="flex flex-col gap-8 pb-4">
       {!latestGuessQuery.data ? (
         <div className="flex justify-center gap-2 pb-4">
           <Button
-            onClick={() =>
-              addGuessMutation.mutate(
-                { guess: 'up' },
-                {
-                  onSuccess: refreshGuess,
-                },
-              )
-            }
+            onClick={() => addGuessMutation.mutate({ guess: 'up' })}
             disabled={!!latestGuessQuery.data}>
+            <ArrowUpIcon className="size-4" />
             Guess UP
           </Button>
           <Button
             onClick={() => addGuessMutation.mutate({ guess: 'down' })}
             disabled={!!latestGuessQuery.data}>
             Guess DOWN
+            <ArrowDownIcon className="size-4" />
           </Button>
         </div>
       ) : (
-        <GuessCard
-          key={latestGuessQuery.data.guessId}
-          guess={latestGuessQuery.data}
-          refreshGuess={refreshGuess}
-        />
+        <div className="flex flex-col gap-3">
+          <h2 className="font-bold text-lg">Current guess</h2>
+          <GuessCard
+            key={latestGuessQuery.data.guessId}
+            guess={latestGuessQuery.data}
+            refreshGuess={refreshGuess}
+          />
+        </div>
       )}
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-3">
         <h2 className="font-bold text-lg">Previous guesses</h2>
         <GuessesList guesses={resolvedGuessesQuery.data ?? []} />
       </div>
