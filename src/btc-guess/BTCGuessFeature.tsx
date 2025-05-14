@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import { trpc } from '@/lib/trpc'
 import type { GuessType, GuessViewRowType } from '@server/guess/types'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { addMinutes, isBefore } from 'date-fns'
+import { addMinutes, differenceInSeconds, isBefore } from 'date-fns'
 import { ArrowDownIcon, ArrowUpIcon } from 'lucide-react'
 
 function createOptimisticGuess(guess: GuessType) {
@@ -23,7 +23,6 @@ function createOptimisticGuess(guess: GuessType) {
 
 export default function BTCGuessFeature() {
   const queryClient = useQueryClient()
-  const resolvedGuessesQuery = useQuery(trpc.resolvedGuesses.queryOptions())
 
   const latestGuessQuery = useQuery({
     ...trpc.latestUserGuess.queryOptions(),
@@ -45,6 +44,16 @@ export default function BTCGuessFeature() {
     },
   })
 
+  const resolvedGuessesQuery = useQuery({
+    ...trpc.resolvedGuesses.queryOptions(),
+    refetchInterval: () =>
+      latestGuessQuery.data?.guessedAt
+        ? differenceInSeconds(new Date(), latestGuessQuery.data.guessedAt) >= 60
+          ? 1000
+          : 1000 * 10
+        : 1000 * 60,
+  })
+
   const latestGuessQueryKey = trpc.latestUserGuess.queryKey()
 
   const addGuessMutation = useMutation(
@@ -64,7 +73,7 @@ export default function BTCGuessFeature() {
           previousData,
         }
       },
-      onError: (err, variables, context) => {
+      onError: (err, _, context) => {
         if (context?.previousData !== undefined) {
           queryClient.setQueryData(latestGuessQueryKey, () => context.previousData || undefined)
         }

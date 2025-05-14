@@ -60,7 +60,6 @@ export default function GuessCard({
     const secondsRemaining = differenceInSeconds(endTime, now)
 
     if (secondsRemaining <= 0) {
-      refreshGuess?.()
       setCountdown(0)
     } else {
       setCountdown(secondsRemaining)
@@ -80,7 +79,7 @@ export default function GuessCard({
     }, 1000)
 
     return () => clearInterval(intervalId)
-  }, [guess.guessedAt, isResolved, refreshGuess])
+  }, [guess.guessedAt, isResolved])
 
   return (
     <div className={cn('gap-2 rounded-lg border p-4 shadow-sm', isResolved && 'p-3', className)}>
