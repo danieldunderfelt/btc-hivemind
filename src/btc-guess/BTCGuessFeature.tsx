@@ -2,10 +2,12 @@ import GuessCard from '@/btc-guess/GuessCard'
 import GuessesList from '@/btc-guess/GuessesList'
 import { Button } from '@/components/ui/button'
 import { trpc } from '@/lib/trpc'
+import NumberFlow from '@number-flow/react'
 import type { GuessType, GuessViewRowType } from '@server/guess/types'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { addMinutes, differenceInSeconds, isBefore } from 'date-fns'
 import { ArrowDownIcon, ArrowUpIcon } from 'lucide-react'
+import { useEffect, useMemo } from 'react'
 
 function createOptimisticGuess(guess: GuessType) {
   return {
@@ -86,10 +88,22 @@ export default function BTCGuessFeature() {
     }),
   )
 
+  useEffect(() => {
+    if (!latestGuessQuery.data) {
+      resolvedGuessesQuery.refetch()
+    }
+  }, [latestGuessQuery.data])
+
   const refreshGuess = () => {
     latestGuessQuery.refetch()
     resolvedGuessesQuery.refetch()
   }
+
+  const points = useMemo(
+    () =>
+      resolvedGuessesQuery.data?.reduce((acc, guess) => acc + (guess.isCorrect ? 1 : -1), 0) ?? 0,
+    [resolvedGuessesQuery.data],
+  )
 
   return (
     <div className="flex flex-col gap-8 pb-4">
@@ -111,16 +125,15 @@ export default function BTCGuessFeature() {
       ) : (
         <div className="flex flex-col gap-3">
           <h2 className="font-bold text-lg">Current guess</h2>
-          <GuessCard
-            key={latestGuessQuery.data.guessId}
-            guess={latestGuessQuery.data}
-            refreshGuess={refreshGuess}
-          />
+          <GuessCard guess={latestGuessQuery.data} refreshGuess={refreshGuess} />
         </div>
       )}
       <div className="flex flex-col">
-        <h2 className="mb-4 font-bold text-lg">Previous guesses</h2>
-        <div className="mb-1 flex w-full flex-row items-center justify-between gap-2 px-3 text-gray-500 text-xs">
+        <div className="mb-4 flex w-full flex-row items-center justify-center gap-2 text-xl">
+          <NumberFlow value={points} format={{ notation: 'standard' }} className="font-medium" />
+          <span>Points</span>
+        </div>
+        <div className="mb-1 flex w-full flex-row items-center justify-between gap-2 text-gray-500 text-xs">
           <span>Guess</span>
           <span>Resolution</span>
         </div>
