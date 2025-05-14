@@ -118,8 +118,12 @@ export default function BTCGuessFeature() {
           />
         </div>
       )}
-      <div className="flex flex-col gap-3">
-        <h2 className="font-bold text-lg">Previous guesses</h2>
+      <div className="flex flex-col">
+        <h2 className="mb-4 font-bold text-lg">Previous guesses</h2>
+        <div className="mb-1 flex w-full flex-row items-center justify-between gap-2 px-3 text-gray-500 text-xs">
+          <span>Guess</span>
+          <span>Resolution</span>
+        </div>
         <GuessesList guesses={resolvedGuessesQuery.data ?? []} />
       </div>
     </div>

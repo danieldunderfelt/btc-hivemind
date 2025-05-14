@@ -6,17 +6,23 @@ export default function PriceDisplay({
   price,
   label,
   priceClassName,
+  labelClassName,
 }: {
   className?: string
   priceClassName?: string
+  labelClassName?: string
   price: number | string | null
   label?: string
 }) {
   const isOptimistic = !price || price === 'optimistic'
 
   return (
-    <div className={cn('-mb-1.5 flex flex-col items-start gap-1', className)}>
-      {label && <span className="text-gray-500 text-xs/none uppercase">{label}</span>}
+    <div className={cn('-mb-1.5 flex flex-col flex-nowrap items-start gap-1', className)}>
+      {label && (
+        <span className={cn('text-nowrap text-gray-500 text-xs/none uppercase', labelClassName)}>
+          {label}
+        </span>
+      )}
       <span
         className={cn(
           'flex h-8 items-center',

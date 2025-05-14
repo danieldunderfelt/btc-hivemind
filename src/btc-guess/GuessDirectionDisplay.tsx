@@ -24,12 +24,6 @@ export default function GuessDirectionDisplay({
         )}>
         {isUp ? '↑ Up' : '↓ Down'}
       </span>
-      {isResolved && (
-        <span
-          className={cn('ml-2 font-medium text-sm', isCorrect ? 'text-green-600' : 'text-red-600')}>
-          {isCorrect ? '✓ Correct' : '✗ Incorrect'}
-        </span>
-      )}
     </div>
   )
 }
