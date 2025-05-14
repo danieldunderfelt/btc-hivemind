@@ -36,6 +36,20 @@
       "when": 1747234342951,
       "tag": "0004_funny_chamber",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1747240979980,
+      "tag": "0005_careless_random",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1747242002919,
+      "tag": "0006_panoramic_king_bedlam",
+      "breakpoints": true
     }
   ]
 }

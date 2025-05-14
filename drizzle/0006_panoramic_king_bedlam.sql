@@ -1,0 +1,1 @@
+ALTER TABLE "guess_resolutions" ALTER COLUMN "guess_id" DROP NOT NULL;

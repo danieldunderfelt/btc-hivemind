@@ -1,4 +1,5 @@
 import GuessCard from '@/btc-guess/GuessCard'
+import GuessesList from '@/btc-guess/GuessesList'
 import { Button } from '@/components/ui/button'
 import { trpc } from '@/lib/trpc'
 import { useMutation, useQuery } from '@tanstack/react-query'
@@ -6,6 +7,8 @@ import { addMinutes, isBefore } from 'date-fns'
 
 export default function BTCGuessFeature() {
   const addGuessMutation = useMutation(trpc.addGuess.mutationOptions())
+  const resolvedGuessesQuery = useQuery(trpc.resolvedGuesses.queryOptions())
+
   const latestUserGuessQuery = useQuery({
     ...trpc.latestUserGuess.queryOptions(),
     refetchInterval(query) {
@@ -28,13 +31,21 @@ export default function BTCGuessFeature() {
 
   const refreshGuess = () => {
     latestUserGuessQuery.refetch()
+    resolvedGuessesQuery.refetch()
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-8">
       <div className="flex justify-center gap-2">
         <Button
-          onClick={() => addGuessMutation.mutate({ guess: 'up' })}
+          onClick={() =>
+            addGuessMutation.mutate(
+              { guess: 'up' },
+              {
+                onSuccess: refreshGuess,
+              },
+            )
+          }
           disabled={!!latestUserGuessQuery.data}>
           Guess UP
         </Button>
@@ -53,6 +64,10 @@ export default function BTCGuessFeature() {
           </p>
         </div>
       )}
+      <div className="flex flex-col gap-4">
+        <h2 className="font-bold text-lg">Previous guesses</h2>
+        <GuessesList guesses={resolvedGuessesQuery.data ?? []} />
+      </div>
     </div>
   )
 }

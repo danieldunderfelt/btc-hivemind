@@ -30,10 +30,11 @@ export async function addGuess(
     .returning()
 
   await sendMessage(
-    JSON.stringify({
+    {
       guessId: guessRow[0].id,
       userId: ctx.user.id,
-    }),
+    },
+    60,
   )
 
   return guessRow[0]

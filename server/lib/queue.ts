@@ -12,13 +12,13 @@ const sqs = new SQSClient({
   },
 })
 
-export async function sendMessage(messageBody: string) {
+export async function sendMessage(messageData: Record<string, unknown>, delaySeconds = 0) {
   try {
     const result = await sqs.send(
       new SendMessageCommand({
         QueueUrl: Resource.AppQueue.url,
-        MessageBody: messageBody,
-        DelaySeconds: 5,
+        MessageBody: JSON.stringify(messageData),
+        DelaySeconds: delaySeconds,
       }),
     )
 

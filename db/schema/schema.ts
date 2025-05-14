@@ -22,23 +22,24 @@ export const guesses = pgTable(
   (table) => [index('user_id_idx').on(table.userId), index('guessed_at_idx').on(table.guessedAt)],
 )
 
-export const guessRelations = relations(guesses, ({ one }) => ({
-  guessResolutions: one(guessResolutions),
-}))
-
 export const guessResolutions = pgTable(
   'guess_resolutions',
   {
     id: uuid('id').primaryKey().defaultRandom(),
-    guessId: uuid('guess_id')
-      .notNull()
-      .references(() => guesses.id, { onDelete: 'cascade' }),
+    guessId: uuid('guess_id').references(() => guesses.id, { onDelete: 'cascade' }),
     resolvedPrice: numeric('resolved_price').notNull(),
     resolvedAt: timestamp('resolved_at').notNull(),
     createdAt: timestamp('created_at').defaultNow(),
   },
   (table) => [index('guess_id_idx').on(table.guessId), unique('guess_id_unique').on(table.guessId)],
 )
+
+export const guessRelations = relations(guesses, ({ one }) => ({
+  guessResolutions: one(guessResolutions, {
+    fields: [guesses.id],
+    references: [guessResolutions.guessId],
+  }),
+}))
 
 export const resolvedGuesses = pgView('resolved_guesses').as((qb) =>
   qb
@@ -54,6 +55,7 @@ export const resolvedGuesses = pgView('resolved_guesses').as((qb) =>
         sql<boolean>`CASE WHEN (${guesses.guessPrice} < ${guessResolutions.resolvedPrice} AND ${guesses.guess} = 'up') OR (${guesses.guessPrice} > ${guessResolutions.resolvedPrice} AND ${guesses.guess} = 'down') THEN true ELSE false END`.as(
           'is_correct',
         ),
+      startResolvingAt: guesses.startResolvingAt,
     })
     .from(guesses)
     .innerJoin(guessResolutions, eq(guesses.id, guessResolutions.guessId))
