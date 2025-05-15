@@ -3,13 +3,13 @@ import { env } from '../env'
 
 const useProdApi = env.NODE_ENV === 'production'
 
-async function cryptoComparePrice() {
+async function cryptoComparePrice(cached = true) {
   const url = `https://min-api.cryptocompare.com/data/price?fsym=BTC&tsyms=USD`
   const urlWithApiKey = useProdApi
     ? `${url}&extraParams=bitflip.verycool.dev&api_key=${env.CRYPTOCOMPARE_API_KEY}`
     : url
 
-  const data = await cachedValue(urlWithApiKey, 1000 * 10, async () => {
+  const data = await cachedValue(urlWithApiKey, cached ? 1000 * 10 : 0, async () => {
     const response = await fetch(urlWithApiKey).then((res) => res.json())
     return response.USD as number
   })
@@ -17,8 +17,8 @@ async function cryptoComparePrice() {
   return data || 0
 }
 
-export async function getPrice() {
-  return await cryptoComparePrice()
+export async function getPrice(cached = true) {
+  return await cryptoComparePrice(cached)
 }
 
 /* 

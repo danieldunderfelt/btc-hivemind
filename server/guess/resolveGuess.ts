@@ -2,6 +2,7 @@ import { getPrice } from '@server/btc/price'
 import { isGuessResolved } from '@server/guess/readGuess'
 import { guessResolutions, guesses } from 'db/schema/schema'
 import { and, eq, isNull, lte } from 'drizzle-orm'
+import { env } from '../env'
 import type { Ctx } from '../types'
 
 export type ResolveGuessStatus = 'success' | 'already-resolved' | 'failed' | 'not-found'
@@ -11,12 +12,12 @@ export async function resolveGuess(
   ctx: Ctx,
 ): Promise<ResolveGuessStatus> {
   // Use forceResolution to resolve a guess that is not yet resolved
-  // but locked by a previous resolution attempt.
+  // but locked by a previous resolution attempt. test
   const { guessId, userId, forceResolution = false } = guessProps
 
   try {
     let resolvedDate = new Date()
-    let price = await getPrice()
+    let price = await getPrice(false)
 
     if (!price) {
       return 'failed'
@@ -30,7 +31,11 @@ export async function resolveGuess(
         eq(guesses.id, guessId),
         eq(guesses.userId, userId),
         !forceResolution ? isNull(guesses.startResolvingAt) : undefined,
-        lte(guesses.guessedAt, new Date(Date.now() - 60 * 1000)), // Ensure that the guess was made at least 1 minute ago
+        lte(
+          guesses.guessedAt,
+          // Ensure that the guess was made at least 1 minute ago. Faster iteration in dev.
+          env.NODE_ENV === 'production' ? new Date(Date.now() - 60 * 1000) : new Date(),
+        ),
       ),
     })
 
@@ -52,10 +57,10 @@ export async function resolveGuess(
     let i = 0
 
     // Try to resolve a different price if the guess price is the same as the current price.
-    // Try up to 6 times, 10 seconds apart.
-    while (guess.guessPrice === price.toString() && i < 6) {
-      await new Promise((resolve) => setTimeout(resolve, 1000 * 60 * 10))
-      price = await getPrice()
+    // Try up to 3 times, 10 seconds apart.
+    while (guess.guessPrice === price.toString() && i < 3) {
+      await new Promise((resolve) => setTimeout(resolve, 1000 * 10))
+      price = await getPrice(false)
       resolvedDate = new Date()
       i++
     }
@@ -65,7 +70,14 @@ export async function resolveGuess(
     if (guess.guessPrice === price.toString()) {
       const adjustment = Math.random() < 0.5 ? -1 : 1
       price = price + adjustment
-      // TODO: Log this issue.
+
+      console.error(
+        'Price is still the same as the guess after all resolution attempts. Resolved with coin flip.',
+        guess.id,
+        guess.userId,
+        guess.guessPrice,
+        price,
+      )
     }
 
     // Sanity check before inserting the guess resolution.

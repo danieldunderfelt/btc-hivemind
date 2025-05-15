@@ -19,7 +19,7 @@ export default function PriceDisplay({
         {isOptimistic && (
           <motion.span
             key="price-loading"
-            className={cn('h-6 w-48 animate-pulse rounded-md bg-neutral-700')}
+            className={cn('h-6 w-32 animate-pulse rounded-md bg-neutral-700')}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.2 }}

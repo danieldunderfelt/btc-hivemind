@@ -2,6 +2,7 @@ import { resolveGuess } from '@server/guess/resolveGuess'
 import { sendMessage } from '@server/lib/queue'
 import { z } from 'zod'
 import { getPrice } from '../btc/price'
+import { env } from '../env'
 import type { Procedure } from '../types'
 import { getLatestGuess, getResolvedGuesses } from './readGuess'
 import { guessTypeSchema } from './types'
@@ -13,7 +14,7 @@ export function addGuessMutation(procedure: Procedure) {
     // Record tiemstamp ASAP when guess is made.
     const guessedAt = new Date()
     // Record price ASAP when guess is made.
-    const price = await getPrice()
+    const price = await getPrice(false)
 
     if (!user) {
       // TODO: Record pending guess and attribute it to the user when they sign in later
@@ -34,7 +35,8 @@ export function addGuessMutation(procedure: Procedure) {
         guessId: guess.id,
         userId: user.id,
       },
-      60,
+      // Faster iteration in dev.
+      env.NODE_ENV === 'production' ? 60 : 10,
     )
 
     return guess
@@ -58,5 +60,15 @@ export function latestUserGuessQuery(procedure: Procedure) {
 }
 
 export function resolvedGuessesQuery(procedure: Procedure) {
-  return procedure.query(({ ctx }) => getResolvedGuesses(ctx))
+  return (
+    procedure
+      // Inputs are currently only used to enable query invalidation.
+      .input(
+        z.object({
+          latestGuessId: z.string().optional(),
+          latestResolvedAt: z.string().optional(),
+        }),
+      )
+      .query(({ ctx }) => getResolvedGuesses(ctx))
+  )
 }

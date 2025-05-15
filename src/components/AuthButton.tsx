@@ -21,7 +21,7 @@ export function AuthButton({ className }: { className?: string }) {
         </Button>
       ) : (
         <div className={cn('flex flex-row items-center gap-4', className)}>
-          <p className="text-xs">{data?.user?.email}</p>
+          <p className="line-clamp-1 text-ellipsis text-xs">{data?.user?.email}</p>
           <Button variant="outline" size="sm" onClick={() => signOutMutation.mutate()}>
             {signOutMutation.isPending ? 'Signing out...' : 'Sign out'}
           </Button>

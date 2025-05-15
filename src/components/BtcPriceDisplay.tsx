@@ -19,16 +19,19 @@ export default function BtcPriceDisplay({ className }: { className?: string }) {
 
   return (
     <div className={cn('relative flex flex-col items-center gap-2 py-4', className)}>
-      <Button
-        className="absolute top-2 right-2"
-        onClick={() => btcPriceQuery.refetch()}
-        variant="ghost"
-        disabled={isLoading}>
-        <RefreshCwIcon className={cn('h-4 w-4', isLoading && 'animate-spin')} />
-      </Button>
       <h2 className="font-light text-lg">Bitcoin Price Now</h2>
+
       {btcPriceQuery.data ? (
-        <PriceDisplay price={btcPriceQuery.data} priceClassName="text-2xl/6 font-semibold" />
+        <div className="flex flex-row items-center gap-2">
+          <PriceDisplay price={btcPriceQuery.data} priceClassName="text-2xl/6 font-semibold" />
+          <Button
+            onClick={() => btcPriceQuery.refetch()}
+            variant="ghost"
+            disabled={isLoading}
+            className="-mr-6">
+            <RefreshCwIcon className={cn('size-4', isLoading && 'animate-spin')} />
+          </Button>
+        </div>
       ) : (
         <div className="h-6 w-52 animate-pulse rounded-md bg-neutral-700" />
       )}

@@ -1,15 +1,27 @@
+import { useLatestGuess } from '@/btc-guess/useLatestGuess'
 import { trpc } from '@/lib/trpc'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { keepPreviousData, useQuery, useQueryClient } from '@tanstack/react-query'
 
 export function useResolvedGuesses() {
-  const resolvedGuessesQuery = useQuery(trpc.resolvedGuesses.queryOptions())
-
-  const resolvedGuessesQueryKey = trpc.resolvedGuesses.queryKey()
   const queryClient = useQueryClient()
+  const { query: latestGuessQuery } = useLatestGuess()
+
+  const resolvedGuessesQuery = useQuery(
+    trpc.guess.resolvedGuesses.queryOptions(
+      {
+        // Add these to make the query revalidate when the latest guess changes.
+        latestGuessId: latestGuessQuery.data?.guessId,
+        latestResolvedAt: latestGuessQuery.data?.resolvedAt?.toISOString(),
+      },
+      {
+        placeholderData: keepPreviousData,
+        staleTime: 1000 * 60,
+      },
+    ),
+  )
 
   return {
     query: resolvedGuessesQuery,
-    queryKey: resolvedGuessesQueryKey,
-    refresh: () => queryClient.invalidateQueries({ queryKey: resolvedGuessesQueryKey }),
+    refresh: () => queryClient.invalidateQueries(trpc.guess.resolvedGuesses.queryFilter()),
   }
 }

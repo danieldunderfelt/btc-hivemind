@@ -59,6 +59,7 @@ export default function LoginView({ redirectTo }: { redirectTo: string }) {
               <Input
                 id="email"
                 type="email"
+                enterKeyHint="go"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="you@example.com"
@@ -72,12 +73,15 @@ export default function LoginView({ redirectTo }: { redirectTo: string }) {
             </Button>
           </form>
         ) : (
-          <form onSubmit={handleOtpSubmit} className="space-y-6">
-            <div>
+          <form onSubmit={handleOtpSubmit} className="flex flex-col gap-6">
+            <div className="flex flex-col items-center gap-4">
               <label
                 htmlFor="otp"
                 className="mb-2 block text-center font-medium text-foreground text-sm">
-                Enter OTP sent to {email}
+                Enter OTP sent to{' '}
+                <span className="font-bold" onClick={() => setEmail(email)}>
+                  {email}
+                </span>
               </label>
               <InputOTP
                 id="otp"
@@ -112,7 +116,7 @@ export default function LoginView({ redirectTo }: { redirectTo: string }) {
                 setOtp('')
               }}
               disabled={signInMutation.isPending || sendOtpMutation.isPending}>
-              Back to email
+              Change email
             </Button>
           </form>
         )}

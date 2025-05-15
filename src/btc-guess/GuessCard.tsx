@@ -2,12 +2,10 @@ import GuessDirectionDisplay from '@/btc-guess/GuessDirectionDisplay'
 import GuessResolutionDisplay from '@/btc-guess/GuessResolutionDisplay'
 import PriceDisplay from '@/components/PriceDisplay'
 import { cn } from '@/lib/utils'
-import NumberFlow from '@number-flow/react'
 import type { GuessViewRowType } from '@server/guess/types'
-import { addMinutes, differenceInSeconds, intlFormatDistance } from 'date-fns'
-import { Loader2 } from 'lucide-react'
+import { intlFormatDistance } from 'date-fns'
 import { motion } from 'motion/react'
-import { type Ref, useEffect, useState } from 'react'
+import type { Ref } from 'react'
 
 export default function GuessCard({
   guess,
@@ -33,72 +31,35 @@ export default function GuessCard({
   const isResolved = !!guess.resolvedAt
   const isCorrect = guess.isCorrect
 
-  const [countdown, setCountdown] = useState<number | null>(null)
-
-  useEffect(() => {
-    if (isResolved) {
-      setCountdown(null)
-      return
-    }
-
-    // Initial calculation
-    const endTime = addMinutes(guess.guessedAt, 1)
-    const now = new Date()
-    const secondsRemaining = differenceInSeconds(endTime, now)
-
-    if (secondsRemaining <= 0) {
-      setCountdown(0)
-    } else {
-      setCountdown(secondsRemaining)
-    }
-
-    const intervalId = setInterval(() => {
-      const endTime = addMinutes(guess.guessedAt, 1)
-      const now = new Date()
-      const secondsRemaining = differenceInSeconds(endTime, now)
-
-      if (secondsRemaining <= 0) {
-        setCountdown(0)
-        clearInterval(intervalId)
-      } else {
-        setCountdown(secondsRemaining)
-      }
-    }, 1000)
-
-    return () => clearInterval(intervalId)
-  }, [guess.guessedAt, isResolved])
-
   const showLarge = size === 'large'
+
+  const guessedLabel = (
+    <div className="flex flex-row items-baseline gap-2">
+      <span className="text-gray-300 text-sm">Guessed</span>
+      <span className="text-gray-500 text-xs">{formattedTime}</span>
+    </div>
+  )
 
   return (
     <motion.div
       ref={ref}
       layout={true}
       className={cn(
-        'flex flex-col gap-6 rounded-lg border p-4 shadow-sm',
-        !showLarge && 'gap-3 p-3',
+        'flex flex-col gap-6 rounded-lg border p-4 shadow-sm sm:p-6',
+        !showLarge && 'gap-3 p-3 sm:p-4',
         className,
       )}
-      initial={{ opacity: 0, y: 10 }}
+      initial={{ opacity: 0, y: -50 }}
       animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -10 }}
+      exit={{ opacity: 0, y: -50 }}
       transition={{ type: 'spring', stiffness: 400, damping: 38, mass: 1, bounce: 0.2 }}>
-      <div className={cn('flex items-center justify-between gap-2', showLarge && '-mt-1 gap-4')}>
-        <div className="flex flex-row items-baseline gap-2">
-          <span className="text-gray-300 text-sm">Guessed</span>
-          <span className="text-gray-500 text-xs">{formattedTime}</span>
-        </div>
-
-        <div className="flex flex-row items-baseline gap-2">
-          <span className="text-gray-300 text-sm">{isResolved ? 'Resolved' : 'Resolving in'}</span>
-          {formattedResolvedTime && (
-            <span className="text-gray-500 text-xs">{formattedResolvedTime}</span>
-          )}
-        </div>
-      </div>
-
       <div className={cn('flex flex-row items-end justify-between gap-2')}>
-        <div className={cn('flex flex-col items-start gap-1', showLarge && 'gap-3')}>
+        <div
+          className={cn(
+            'flex flex-col items-start gap-1',
+            showLarge && 'gap-3',
+            !isResolved && 'gap-4',
+          )}>
           <div className="flex flex-row items-baseline gap-2">
             <GuessDirectionDisplay
               guessType={guess.guess}
@@ -114,25 +75,16 @@ export default function GuessCard({
         </div>
 
         {!isResolved ? (
-          <div className={cn('flex flex-row items-center gap-2')}>
+          <div className={cn('flex flex-col items-end gap-1', showLarge && 'gap-4')}>
+            {guessedLabel}
+
             <motion.span
               key="price-loading"
-              className={cn('h-6 w-36 animate-pulse self-center rounded-md bg-neutral-700')}
+              className={cn('h-6 w-32 animate-pulse rounded-md bg-neutral-700')}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.2 }}
             />
-            {countdown !== null && countdown > 0 && (
-              <NumberFlow
-                value={countdown}
-                format={{ notation: 'standard' }}
-                suffix="s"
-                className="text-gray-300 text-xl"
-              />
-            )}
-            {countdown === 0 && !isResolved && (
-              <Loader2 className="h-5 w-5 animate-spin text-white" />
-            )}
           </div>
         ) : (
           <div className={cn('flex flex-col items-end gap-1', showLarge && 'gap-3')}>
@@ -148,6 +100,15 @@ export default function GuessCard({
           </div>
         )}
       </div>
+      {isResolved && (
+        <div className={cn('flex items-center justify-between gap-2', showLarge && '-mt-1 gap-4')}>
+          {guessedLabel}
+          <div className="flex flex-row items-baseline gap-2">
+            <span className="text-gray-300 text-sm">Resolved</span>
+            <span className="text-gray-500 text-xs">{formattedResolvedTime}</span>
+          </div>
+        </div>
+      )}
     </motion.div>
   )
 }

@@ -31,11 +31,15 @@ export const protectedProcedure = t.procedure.use(async ({ ctx, next }) => {
 
 export const publicProcedure = t.procedure
 
-export const router = t.router({
+const guessRouter = t.router({
   addGuess: addGuessMutation(publicProcedure),
   latestUserGuess: latestUserGuessQuery(protectedProcedure),
   resolvedGuesses: resolvedGuessesQuery(protectedProcedure),
   resolveGuess: resolveGuessMutation(protectedProcedure),
+})
+
+export const router = t.router({
+  guess: guessRouter,
   btcPrice: publicProcedure.query(async ({ ctx }) => getPrice()),
 })
 

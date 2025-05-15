@@ -1,7 +1,7 @@
 'use client'
 
 import { cn } from '@/lib/utils'
-import { type MotionProps, motion } from 'motion/react'
+import { type MotionProps, motion, useIsPresent } from 'motion/react'
 import {
   type PropsWithChildren,
   type Ref,
@@ -66,7 +66,7 @@ export function ConfettiTrigger({
   className,
   isActive = true,
   confettiKey,
-  timeout = 700,
+  timeout = 300,
   motionProps,
   ref,
 }: PropsWithChildren<{
@@ -77,6 +77,9 @@ export function ConfettiTrigger({
   motionProps?: MotionProps
   ref?: Ref<HTMLDivElement>
 }>) {
+  const isPresent = useIsPresent()
+  console.log('isPresent', confettiKey, isPresent)
+
   const { showConfetti } = useConfetti()
   const confettiRef = useRef<{ x: number; y: number } | null>(null)
 
@@ -96,8 +99,10 @@ export function ConfettiTrigger({
           ref.current = node
         }
 
-        if (node && isActive && !confettiRef.current) {
-          setTimeout(() => {
+        let timeoutRef: NodeJS.Timeout | null = null
+
+        if (node && isActive && !confettiRef.current && isPresent) {
+          timeoutRef = setTimeout(() => {
             // Show confetti after a short delay
             // Get the bounding rectangle of the element
             const rect = node.getBoundingClientRect()
@@ -112,12 +117,28 @@ export function ConfettiTrigger({
 
             confettiRef.current = { x: viewportX, y: viewportY }
 
-            showConfetti({
-              key: confettiKey,
-              x: viewportX,
-              y: viewportY,
-            })
+            if (isActive) {
+              console.log(
+                'show confetti',
+                confettiKey,
+                viewportX,
+                viewportY,
+                isActive ? 'active' : 'inactive',
+              )
+
+              showConfetti({
+                key: confettiKey,
+                x: viewportX,
+                y: viewportY,
+              })
+            }
           }, timeout)
+        }
+
+        return () => {
+          if (timeoutRef) {
+            clearTimeout(timeoutRef)
+          }
         }
       }}
       className={cn('transition-transform duration-200 hover:scale-110', className)}
