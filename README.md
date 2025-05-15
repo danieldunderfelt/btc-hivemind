@@ -121,6 +121,11 @@ The project uses Drizzle ORM for interacting with the database. When the schema 
 
 In production, there is a migration Lambda that applies the migrations to the production database. This runs automatically on `sst deploy`, but needs the migration files present to have any effect.
 
+### Notes
+
+- The resolution time is 10 seconds locally, and 60 seconds in production. This is to make it more ergonomic to test the app locally.
+- CryptoCompare does not require an API key for development. The API key is only used in production.
+
 ## Roadmap
 
 The MVP works as specced, but I would like to explore the following roadmap:
