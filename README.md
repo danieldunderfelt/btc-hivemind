@@ -137,3 +137,4 @@ The MVP works as specced, but I would like to explore the following roadmap:
 - Initially the server-side URL was not https (using an EC2 cluster), so I needed to completely restructure the server-side infra around Lambdas.
 - I had hoped I would not need a domain, but CORS and cookie issues (and the above https issue) made it the path of least resistance.
 - Finding a good API for the price of Bitcoin was not straight-forward. Many API's only provide price updates by the minute, which is borderline unusable for the app. Some API's just did not return correct data. CryptoCompare seems to work well enough, and they say the data is cached for 10 seconds.
+- The AWS SQS queue did not want to work without providing AWS credentials. This is counter to the SST docs, but I do not see a way around it. It does need the "session token" which sounds like it will stop working at some point, but I will monitor the situation.
