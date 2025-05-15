@@ -1,6 +1,6 @@
 # BitFlip
 
-[https://bitflip.verycool.dev](Try the app!)
+[Try the app!](https://bitflip.verycool.dev)
 
 BitFlip is an experiment to figure out if the wisdom of crowds can predict the direction of the price of Bitcoin more accurately than a coin flip.
 
@@ -56,7 +56,7 @@ The application is implemented with the following stack:
 
 ### API
 
-The app uses the [https://developers.coindesk.com/documentation/legacy/Price/SingleSymbolPriceEndpoint](CryptoCompare API) for fetching the Bitcoin price. I tried multiple alternatives, and this one worked the best. Many API's had a minute as the best price update cadence, CryptoCompare has 10 seconds (AFAIK). A realtime API would have been pretty nice, but those seemed to be quite expensive.
+The app uses the [CryptoCompare API](https://developers.coindesk.com/documentation/legacy/Price/SingleSymbolPriceEndpoint) for fetching the Bitcoin price. I tried multiple alternatives, and this one worked the best. Many API's had a minute as the best price update cadence, CryptoCompare has 10 seconds (AFAIK). A realtime API would have been pretty nice, but those seemed to be quite expensive.
 
 ## Development
 
