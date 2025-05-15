@@ -110,16 +110,16 @@ export default function BTCGuessFeature() {
       {!latestGuessQuery.data ? (
         <div className="flex justify-center gap-2 pb-4">
           <Button
+            onClick={() => addGuessMutation.mutate({ guess: 'down' })}
+            disabled={!!latestGuessQuery.data}>
+            It's going down
+            <ArrowDownIcon className="size-4" />
+          </Button>
+          <Button
             onClick={() => addGuessMutation.mutate({ guess: 'up' })}
             disabled={!!latestGuessQuery.data}>
             <ArrowUpIcon className="size-4" />
-            Guess UP
-          </Button>
-          <Button
-            onClick={() => addGuessMutation.mutate({ guess: 'down' })}
-            disabled={!!latestGuessQuery.data}>
-            Guess DOWN
-            <ArrowDownIcon className="size-4" />
+            It's going up
           </Button>
         </div>
       ) : (
@@ -132,10 +132,6 @@ export default function BTCGuessFeature() {
         <div className="mb-4 flex w-full flex-row items-center justify-center gap-2 text-xl">
           <NumberFlow value={points} format={{ notation: 'standard' }} className="font-medium" />
           <span>Points</span>
-        </div>
-        <div className="mb-1 flex w-full flex-row items-center justify-between gap-2 text-gray-500 text-xs">
-          <span>Guess</span>
-          <span>Resolution</span>
         </div>
         <GuessesList guesses={resolvedGuessesQuery.data ?? []} />
       </div>
