@@ -15,15 +15,14 @@ export default function GuessDirectionDisplay({
   const isCorrect = resolvedStatus === 'correct'
 
   return (
-    <div className={cn('flex items-center gap-2', className)}>
-      <span
-        className={cn(
-          'font-bold text-neutral-400',
-          isCorrect ? 'text-green-500' : 'text-red-500',
-          !isResolved && 'text-lg text-white',
-        )}>
-        {isUp ? '↑ Up' : '↓ Down'}
-      </span>
+    <div
+      className={cn(
+        'flex flex-nowrap items-center gap-2 text-nowrap font-bold text-base/4 text-neutral-400',
+        isCorrect ? 'text-green-500' : 'text-red-500',
+        !isResolved && 'text-lg/4 text-white',
+        className,
+      )}>
+      {isUp ? '↑ Up' : '↓ Down'}
     </div>
   )
 }

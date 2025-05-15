@@ -3,7 +3,7 @@ import { sendMessage } from '@server/lib/queue'
 import { z } from 'zod'
 import { getPrice } from '../btc/price'
 import type { Procedure } from '../types'
-import { getPendingGuess, getResolvedGuesses } from './readGuess'
+import { getLatestGuess, getResolvedGuesses } from './readGuess'
 import { guessTypeSchema } from './types'
 import { addGuess } from './writeGuess'
 
@@ -52,8 +52,9 @@ export function resolveGuessMutation(procedure: Procedure) {
     return resolveGuess({ guessId: input.guessId, userId: user.id }, ctx)
   })
 }
+
 export function latestUserGuessQuery(procedure: Procedure) {
-  return procedure.query(({ ctx }) => getPendingGuess(ctx))
+  return procedure.query(({ ctx }) => getLatestGuess(ctx))
 }
 
 export function resolvedGuessesQuery(procedure: Procedure) {

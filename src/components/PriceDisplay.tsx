@@ -19,7 +19,7 @@ export default function PriceDisplay({
         {isOptimistic && (
           <motion.span
             key="price-loading"
-            className={cn('h-8 w-48 animate-pulse rounded-md bg-neutral-700')}
+            className={cn('h-6 w-48 animate-pulse rounded-md bg-neutral-700')}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.2 }}
@@ -27,14 +27,14 @@ export default function PriceDisplay({
         )}
         {!!price && !isOptimistic && (
           <motion.span
-            className="flex h-8 items-center"
+            className="flex h-6 items-center"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.2 }}>
             <NumberFlow
               key="price"
               value={Number.parseFloat(String(price))}
-              className={cn('font-medium text-lg/8', priceClassName)}
+              className={cn('font-medium text-lg/6', priceClassName)}
               format={{ notation: 'standard', style: 'currency', currency: 'USD' }}
             />
           </motion.span>

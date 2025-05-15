@@ -1,13 +1,16 @@
-import GuessCard from '@/btc-guess/GuessCard'
+import CurrentGuess from '@/btc-guess/CurrentGuess'
 import GuessesList from '@/btc-guess/GuessesList'
+import { useLatestGuess } from '@/btc-guess/useLatestGuess'
+import { useResolvedGuesses } from '@/btc-guess/useResolvedGuesses'
+import BtcPriceDisplay from '@/components/BtcPriceDisplay'
 import { Button } from '@/components/ui/button'
 import { trpc } from '@/lib/trpc'
 import NumberFlow from '@number-flow/react'
 import type { GuessType, GuessViewRowType } from '@server/guess/types'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { addMinutes, differenceInSeconds, isBefore } from 'date-fns'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { ArrowDownIcon, ArrowUpIcon } from 'lucide-react'
-import { useEffect, useMemo } from 'react'
+import { AnimatePresence, motion } from 'motion/react'
+import { useEffect, useMemo, useState } from 'react'
 
 function createOptimisticGuess(guess: GuessType) {
   return {
@@ -26,37 +29,30 @@ function createOptimisticGuess(guess: GuessType) {
 export default function BTCGuessFeature() {
   const queryClient = useQueryClient()
 
-  const latestGuessQuery = useQuery({
-    ...trpc.latestUserGuess.queryOptions(),
-    refetchInterval(query) {
-      const guessedAt = query.state.data?.guessedAt
-      const isResolved = query.state.data?.resolvedAt
+  const {
+    query: latestGuessQuery,
+    queryKey: latestGuessQueryKey,
+    refresh: refreshLatestGuess,
+  } = useLatestGuess()
 
-      if (!guessedAt || isResolved) {
-        return false
-      }
+  const { query: resolvedGuessesQuery, refresh: refreshResolvedGuesses } = useResolvedGuesses()
+  const [focusCurrentGuess, setFocusCurrentGuess] = useState(
+    !latestGuessQuery.data ? false : !latestGuessQuery.data.resolvedAt,
+  )
 
-      const shouldBeResolved = isBefore(addMinutes(guessedAt, 1), new Date())
+  useEffect(() => {
+    if (latestGuessQuery.data && !latestGuessQuery.data.resolvedAt) {
+      setFocusCurrentGuess(true)
+    }
+  }, [latestGuessQuery.data])
 
-      if (shouldBeResolved) {
-        return 1000
-      }
+  const showCurrentGuess = useMemo(() => {
+    if (!latestGuessQuery.data) {
+      return false
+    }
 
-      return 1000 * 10
-    },
-  })
-
-  const resolvedGuessesQuery = useQuery({
-    ...trpc.resolvedGuesses.queryOptions(),
-    refetchInterval: () =>
-      latestGuessQuery.data?.guessedAt
-        ? differenceInSeconds(new Date(), latestGuessQuery.data.guessedAt) >= 60
-          ? 1000
-          : 1000 * 10
-        : 1000 * 60,
-  })
-
-  const latestGuessQueryKey = trpc.latestUserGuess.queryKey()
+    return focusCurrentGuess
+  }, [latestGuessQuery.data, focusCurrentGuess])
 
   const addGuessMutation = useMutation(
     trpc.addGuess.mutationOptions({
@@ -88,15 +84,19 @@ export default function BTCGuessFeature() {
     }),
   )
 
-  useEffect(() => {
-    if (!latestGuessQuery.data) {
-      resolvedGuessesQuery.refetch()
-    }
-  }, [latestGuessQuery.data])
-
   const refreshGuess = () => {
-    latestGuessQuery.refetch()
-    resolvedGuessesQuery.refetch()
+    refreshLatestGuess()
+    refreshResolvedGuesses()
+  }
+
+  const onGuess = (guess: GuessType) => {
+    setFocusCurrentGuess(true)
+    return addGuessMutation.mutate({ guess })
+  }
+
+  const onGuessDone = () => {
+    setFocusCurrentGuess(false)
+    refreshResolvedGuesses()
   }
 
   const points = useMemo(
@@ -107,33 +107,35 @@ export default function BTCGuessFeature() {
 
   return (
     <div className="flex flex-col gap-8 pb-4">
-      {!latestGuessQuery.data ? (
-        <div className="flex justify-center gap-2 pb-4">
-          <Button
-            onClick={() => addGuessMutation.mutate({ guess: 'down' })}
-            disabled={!!latestGuessQuery.data}>
-            It's going down
-            <ArrowDownIcon className="size-4" />
-          </Button>
-          <Button
-            onClick={() => addGuessMutation.mutate({ guess: 'up' })}
-            disabled={!!latestGuessQuery.data}>
-            <ArrowUpIcon className="size-4" />
-            It's going up
-          </Button>
-        </div>
-      ) : (
-        <div className="flex flex-col gap-3">
-          <h2 className="font-bold text-lg">Current guess</h2>
-          <GuessCard guess={latestGuessQuery.data} refreshGuess={refreshGuess} />
-        </div>
-      )}
-      <div className="flex flex-col">
-        <div className="mb-4 flex w-full flex-row items-center justify-center gap-2 text-xl">
+      <BtcPriceDisplay className="relative z-20" />
+      <AnimatePresence mode="popLayout" propagate={true} initial={false}>
+        {!showCurrentGuess ? (
+          <motion.div
+            key="add-guess"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 38, mass: 1, bounce: 0.2 }}
+            className="flex justify-center gap-2 pb-4">
+            <Button onClick={() => onGuess('down')} disabled={showCurrentGuess}>
+              It's going down
+              <ArrowDownIcon className="size-4" />
+            </Button>
+            <Button onClick={() => onGuess('up')} disabled={showCurrentGuess}>
+              <ArrowUpIcon className="size-4" />
+              It's going up
+            </Button>
+          </motion.div>
+        ) : (
+          <CurrentGuess key="current-guess" onDone={onGuessDone} />
+        )}
+      </AnimatePresence>
+      <div className="flex flex-col items-center gap-6">
+        <div className="relative z-30 flex w-full flex-row items-center justify-center gap-2 text-xl">
           <NumberFlow value={points} format={{ notation: 'standard' }} className="font-medium" />
           <span>Points</span>
         </div>
-        <GuessesList guesses={resolvedGuessesQuery.data ?? []} />
+        <GuessesList className="w-full max-w-2xl" guesses={resolvedGuessesQuery.data ?? []} />
       </div>
     </div>
   )

@@ -1,7 +1,15 @@
 'use client'
 
 import { cn } from '@/lib/utils'
-import { type PropsWithChildren, createContext, useContext, useRef, useState } from 'react'
+import { type MotionProps, motion } from 'motion/react'
+import {
+  type PropsWithChildren,
+  type Ref,
+  createContext,
+  useContext,
+  useRef,
+  useState,
+} from 'react'
 import Confetti from 'react-confetti-boom'
 import { useThrottledCallback } from 'use-debounce'
 
@@ -59,11 +67,15 @@ export function ConfettiTrigger({
   isActive = true,
   confettiKey,
   timeout = 700,
+  motionProps,
+  ref,
 }: PropsWithChildren<{
   className?: string
   isActive?: boolean
   confettiKey: string
   timeout?: number
+  motionProps?: MotionProps
+  ref?: Ref<HTMLDivElement>
 }>) {
   const { showConfetti } = useConfetti()
   const confettiRef = useRef<{ x: number; y: number } | null>(null)
@@ -75,8 +87,15 @@ export function ConfettiTrigger({
   }, 1000)
 
   return (
-    <div
+    <motion.div
+      {...motionProps}
       ref={(node) => {
+        if (ref && typeof ref === 'function') {
+          ref(node)
+        } else if (ref) {
+          ref.current = node
+        }
+
         if (node && isActive && !confettiRef.current) {
           setTimeout(() => {
             // Show confetti after a short delay
@@ -104,6 +123,6 @@ export function ConfettiTrigger({
       className={cn('transition-transform duration-200 hover:scale-110', className)}
       onClick={debouncedShowConfetti}>
       {children}
-    </div>
+    </motion.div>
   )
 }

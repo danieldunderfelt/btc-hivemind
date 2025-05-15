@@ -11,7 +11,9 @@ export const Route = createRootRoute({
       <ConfettiProvider>
         <main className="flex w-full flex-col gap-4">
           <AppHeader />
-          <Outlet />
+          <div className="relative w-full">
+            <Outlet />
+          </div>
         </main>
       </ConfettiProvider>
       {!env.VITE_PROD && <TanStackRouterDevtools />}

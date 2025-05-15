@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils'
 import { useQuery } from '@tanstack/react-query'
 import { RefreshCwIcon } from 'lucide-react'
 
-export default function BtcPriceDisplay() {
+export default function BtcPriceDisplay({ className }: { className?: string }) {
   const btcPriceQuery = useQuery({
     ...trpc.btcPrice.queryOptions(),
     refetchInterval: 1000 * 60 * 5,
@@ -18,7 +18,7 @@ export default function BtcPriceDisplay() {
     btcPriceQuery.isLoading
 
   return (
-    <div className="relative flex flex-col items-center gap-2 py-4">
+    <div className={cn('relative flex flex-col items-center gap-2 py-4', className)}>
       <Button
         className="absolute top-2 right-2"
         onClick={() => btcPriceQuery.refetch()}
@@ -28,9 +28,9 @@ export default function BtcPriceDisplay() {
       </Button>
       <h2 className="font-light text-lg">Bitcoin Price Now</h2>
       {btcPriceQuery.data ? (
-        <PriceDisplay price={btcPriceQuery.data} priceClassName="text-2xl font-semibold" />
+        <PriceDisplay price={btcPriceQuery.data} priceClassName="text-2xl/6 font-semibold" />
       ) : (
-        <div className="h-8 w-52 animate-pulse rounded-md bg-neutral-700" />
+        <div className="h-6 w-52 animate-pulse rounded-md bg-neutral-700" />
       )}
     </div>
   )

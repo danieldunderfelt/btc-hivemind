@@ -11,6 +11,22 @@ export async function getPendingGuess(ctx: Ctx) {
     .select()
     .from(allGuesses)
     .where(and(eq(allGuesses.userId, ctx.user.id), isNull(allGuesses.resolvedAt)))
+    .orderBy(desc(allGuesses.guessedAt))
+    .limit(1)
+
+  return guess[0] ?? null
+}
+
+export async function getLatestGuess(ctx: Ctx) {
+  if (!ctx.user) {
+    throw new Error('User not found')
+  }
+
+  const guess = await ctx.db
+    .select()
+    .from(allGuesses)
+    .where(eq(allGuesses.userId, ctx.user.id))
+    .orderBy(desc(allGuesses.guessedAt))
     .limit(1)
 
   return guess[0] ?? null
@@ -32,7 +48,7 @@ export async function getResolvedGuesses(ctx: Ctx) {
 
 export async function isGuessResolved(guessId: string, ctx: Ctx) {
   const guessResolution = await ctx.db.query.guessResolutions.findFirst({
-    where: and(eq(guessResolutions.guessId, guessId), isNull(guessResolutions.resolvedAt)),
+    where: eq(guessResolutions.guessId, guessId),
   })
 
   return !!guessResolution
