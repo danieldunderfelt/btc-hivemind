@@ -2,7 +2,7 @@
 
 [Try the app!](https://bitflip.verycool.dev)
 
-BitFlip is an experiment to figure out if the wisdom of crowds can predict the direction of the price of Bitcoin more accurately than a coin flip.
+BitFlip is an experiment to figure out if the wisdom of crowds can predict the direction of the price of Bitcoin more accurately than a coin flip. Users guess if the price of Bitcoin is higher or lower after one minute. If they are right, they get a point. If they are wrong, they lose a point.
 
 ## How it works, technically
 
