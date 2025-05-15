@@ -1,37 +1,52 @@
 import GuessCard from '@/btc-guess/GuessCard'
-import { useLatestGuess } from '@/btc-guess/useLatestGuess'
 import { Button } from '@/components/ui/button'
 import { env } from '@/env'
 import { trpc } from '@/lib/trpc'
 import { cn } from '@/lib/utils'
 import { ConfettiTrigger } from '@/providers/ConfettiProvider'
 import NumberFlow from '@number-flow/react'
+import type { GuessViewRowType } from '@server/guess/types'
 import { useMutation } from '@tanstack/react-query'
-import { addMinutes, addSeconds, differenceInSeconds, isBefore } from 'date-fns'
+import { addSeconds, differenceInSeconds } from 'date-fns'
 import { CheckCircleIcon, Loader2, XCircleIcon } from 'lucide-react'
 import { motion } from 'motion/react'
-import { type Ref, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import {
+  type Ref,
+  useCallback,
+  useDeferredValue,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 import { toast } from 'sonner'
+import { useSpinDelay } from 'spin-delay'
 
 export default function CurrentGuess({
   onDone,
   onResolved,
   ref,
-}: { onDone: () => void; onResolved: () => unknown; ref?: Ref<HTMLDivElement> }) {
-  const { query: latestGuessQuery } = useLatestGuess()
-
-  const guess = latestGuessQuery.data
+  guess,
+}: {
+  onDone: () => void
+  onResolved: () => unknown
+  ref?: Ref<HTMLDivElement>
+  guess: GuessViewRowType
+}) {
   const isResolved = !!guess?.resolvedAt
   const isOptimistic = guess?.guessId === 'optimistic'
 
   const [countdown, setCountdown] = useState<number | null>(null)
+  const deferredCountdown = useDeferredValue(countdown)
+
   const didResolve = useRef(false)
 
   const canResolve = useMemo(
     () =>
       !isOptimistic &&
       !isResolved &&
-      isBefore(addMinutes(guess?.guessedAt ?? new Date(), 1), new Date()) &&
+      guess?.guessedAt &&
+      differenceInSeconds(new Date(), guess.guessedAt) > 60 &&
       !guess?.startResolvingAt,
     [guess, isResolved, isOptimistic],
   )
@@ -49,15 +64,15 @@ export default function CurrentGuess({
   )
 
   const onGuessResolved = useCallback(() => {
-    if (!didResolve.current) {
+    if (!didResolve.current && isResolved && !isOptimistic) {
       didResolve.current = true
       setCountdown(0)
       onResolved()
     }
-  }, [onResolved])
+  }, [onResolved, isResolved, isOptimistic])
 
   useEffect(() => {
-    if (isResolved) {
+    if (isResolved && !isOptimistic) {
       setCountdown(null)
       onGuessResolved()
       return
@@ -92,7 +107,9 @@ export default function CurrentGuess({
     }, 1000)
 
     return () => clearInterval(intervalId)
-  }, [guess?.guessedAt, isResolved, onGuessResolved])
+  }, [guess?.guessedAt, isResolved])
+
+  const showResolveSpinner = useSpinDelay(deferredCountdown === 0 && !isResolved)
 
   if (!guess) {
     return null
@@ -110,12 +127,11 @@ export default function CurrentGuess({
       <motion.div
         key="current-guess-wrapper"
         layout={true}
-        className="flex max-h-screen w-full flex-col items-center justify-center gap-6 px-2 pt-[13rem]">
+        className="flex max-h-screen w-full flex-col items-center justify-center gap-4 px-2 pt-[15rem]">
         {!isOptimistic && isResolved ? (
           <>
             {guess.isCorrect ? (
               <ConfettiTrigger
-                isActive={true}
                 motionProps={{
                   initial: false,
                   animate: { opacity: 1, scale: 1 },
@@ -148,19 +164,17 @@ export default function CurrentGuess({
             key="pending-guess"
             className="flex flex-row items-center gap-2 tabular-nums">
             <span className="animate-pulse text-base text-neutral-400">
-              {countdown === 0 && !isResolved ? 'Resolving...' : 'Resolving in'}
+              {deferredCountdown === 0 && !isResolved ? 'Resolving...' : 'Resolving in'}
             </span>
-            {countdown !== null && countdown > 0 && (
+            {deferredCountdown !== null && deferredCountdown > 0 && (
               <NumberFlow
-                value={countdown}
+                value={deferredCountdown}
                 format={{ notation: 'standard' }}
                 suffix="s"
                 className="text-gray-300 text-xl"
               />
             )}
-            {countdown === 0 && !isResolved && (
-              <Loader2 className="size-5 animate-spin text-white" />
-            )}
+            {showResolveSpinner && <Loader2 className="size-5 animate-spin text-white" />}
           </motion.div>
         )}
 
@@ -172,12 +186,13 @@ export default function CurrentGuess({
 
         <div className="flex flex-row gap-4">
           {/* Backup manual resolve button. */}
-          {canResolve && differenceInSeconds(new Date(), guess.guessedAt) > 90 && (
+          {canResolve && differenceInSeconds(new Date(), guess.guessedAt) > 70 && (
             <Button
               variant="outline"
               disabled={!canResolve || resolveMutation.isPending}
+              isLoading={resolveMutation.isPending}
               onClick={() => resolveMutation.mutate({ guessId: guess.guessId })}>
-              {resolveMutation.isPending ? 'Resolving...' : 'Resolve'}
+              Resolve
             </Button>
           )}
 

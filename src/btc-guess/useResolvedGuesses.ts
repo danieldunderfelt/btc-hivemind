@@ -15,6 +15,7 @@ export function useResolvedGuesses() {
       },
       {
         placeholderData: keepPreviousData,
+        enabled: latestGuessQuery.data?.guessId !== 'optimistic',
         staleTime: 1000 * 60,
       },
     ),

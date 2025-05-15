@@ -1,7 +1,7 @@
 'use client'
 
 import { cn } from '@/lib/utils'
-import { type MotionProps, motion, useIsPresent } from 'motion/react'
+import { type MotionProps, motion } from 'motion/react'
 import {
   type PropsWithChildren,
   type Ref,
@@ -77,11 +77,8 @@ export function ConfettiTrigger({
   motionProps?: MotionProps
   ref?: Ref<HTMLDivElement>
 }>) {
-  const isPresent = useIsPresent()
-  console.log('isPresent', confettiKey, isPresent)
-
   const { showConfetti } = useConfetti()
-  const confettiRef = useRef<{ x: number; y: number } | null>(null)
+  const confettiRef = useRef<{ x: number; y: number; id: string } | null>(null)
 
   const debouncedShowConfetti = useThrottledCallback(() => {
     if (confettiRef.current) {
@@ -101,7 +98,7 @@ export function ConfettiTrigger({
 
         let timeoutRef: NodeJS.Timeout | null = null
 
-        if (node && isActive && !confettiRef.current && isPresent) {
+        if (node && isActive && !confettiRef.current) {
           timeoutRef = setTimeout(() => {
             // Show confetti after a short delay
             // Get the bounding rectangle of the element
@@ -115,17 +112,9 @@ export function ConfettiTrigger({
             const viewportX = centerX / window.innerWidth
             const viewportY = centerY / window.innerHeight
 
-            confettiRef.current = { x: viewportX, y: viewportY }
+            confettiRef.current = { x: viewportX, y: viewportY, id: confettiKey }
 
             if (isActive) {
-              console.log(
-                'show confetti',
-                confettiKey,
-                viewportX,
-                viewportY,
-                isActive ? 'active' : 'inactive',
-              )
-
               showConfetti({
                 key: confettiKey,
                 x: viewportX,
@@ -141,7 +130,10 @@ export function ConfettiTrigger({
           }
         }
       }}
-      className={cn('transition-transform duration-200 hover:scale-110', className)}
+      className={cn(
+        'touch-manipulation transition-transform duration-200 hover:scale-110',
+        className,
+      )}
       onClick={debouncedShowConfetti}>
       {children}
     </motion.div>

@@ -18,14 +18,12 @@ function createOptimisticGuess(guess: GuessType) {
 
 export function useAddGuess() {
   const queryClient = useQueryClient()
+  const queryFilter = trpc.guess.latestUserGuess.queryFilter()
 
   const addGuessMutation = useMutation(
     trpc.guess.addGuess.mutationOptions({
       onMutate: async (variables) => {
-        const queryFilter = trpc.guess.latestUserGuess.queryFilter()
-
         await queryClient.cancelQueries(queryFilter)
-        const previousData = queryClient.getQueryData<GuessViewRowType | null>(queryFilter.queryKey)
 
         // Optimistically update to the new value
         const nextQueryData = queryClient.setQueryData<GuessViewRowType | null>(
@@ -35,19 +33,26 @@ export function useAddGuess() {
 
         return {
           optimisticUpdateResult: nextQueryData,
-          previousData,
         }
       },
-      onError: (err, _, context) => {
-        if (context?.previousData !== undefined) {
-          const queryFilter = trpc.guess.latestUserGuess.queryFilter()
-          queryClient.setQueryData(queryFilter.queryKey, () => context.previousData || undefined)
-        }
-
+      onError: async (err) => {
+        console.log('onError', err)
+        queryClient.invalidateQueries(trpc.guess.latestUserGuess.queryFilter())
         return err
       },
-      onSuccess: () => {
-        queryClient.invalidateQueries(trpc.guess.pathFilter())
+      onSuccess: async (result) => {
+        if (result) {
+          queryClient.setQueryData<GuessViewRowType | null>(queryFilter.queryKey, () => ({
+            ...result,
+            guessId: result.id,
+            resolvedAt: null,
+            resolvedPrice: null,
+            isCorrect: false,
+            startResolvingAt: null,
+          }))
+        }
+
+        await queryClient.invalidateQueries(trpc.guess.latestUserGuess.queryFilter())
       },
     }),
   )

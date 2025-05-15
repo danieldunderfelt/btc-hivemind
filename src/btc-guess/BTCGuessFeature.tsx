@@ -9,9 +9,10 @@ import { trpc } from '@/lib/trpc'
 import NumberFlow from '@number-flow/react'
 import type { GuessType } from '@server/guess/types'
 import { useQueryClient } from '@tanstack/react-query'
-import { ArrowDownIcon, ArrowUpIcon } from 'lucide-react'
+import { ArrowDownIcon, ArrowUpIcon, Loader2 } from 'lucide-react'
 import { AnimatePresence, motion } from 'motion/react'
-import { useEffect, useMemo, useState } from 'react'
+import { Suspense, useDeferredValue, useEffect, useMemo, useState } from 'react'
+import { useSpinDelay } from 'spin-delay'
 
 export default function BTCGuessFeature() {
   const queryClient = useQueryClient()
@@ -38,32 +39,37 @@ export default function BTCGuessFeature() {
     return focusCurrentGuess
   }, [latestGuessQuery.data, focusCurrentGuess])
 
+  const currentGuess = useDeferredValue(showCurrentGuess ? latestGuessQuery.data : null)
+  const resolvedGuesses = useDeferredValue(resolvedGuessesQuery.data ?? [])
+
   const refreshGuess = () => {
     queryClient.invalidateQueries(trpc.guess.pathFilter())
+    queryClient.invalidateQueries(trpc.btcPrice.queryFilter())
   }
 
   const onGuess = (guess: GuessType) => {
     queryClient.invalidateQueries(trpc.btcPrice.queryFilter())
-    setFocusCurrentGuess(true)
     return addGuessMutation.mutate({ guess })
   }
 
   const onGuessDone = () => {
     setFocusCurrentGuess(false)
-    refreshGuess()
   }
 
   const points = useMemo(
-    () =>
-      resolvedGuessesQuery.data?.reduce((acc, guess) => acc + (guess.isCorrect ? 1 : -1), 0) ?? 0,
-    [resolvedGuessesQuery.data],
+    () => resolvedGuesses.reduce((acc, guess) => acc + (guess.isCorrect ? 1 : -1), 0) ?? 0,
+    [resolvedGuesses],
   )
+
+  const loadingGuess = useSpinDelay(addGuessMutation.isPending)
 
   return (
     <div className="flex flex-col gap-7 pb-4">
-      <BtcPriceDisplay className="relative z-20" />
+      <Suspense fallback={<Loader2 className="size-8 animate-spin self-center" />}>
+        <BtcPriceDisplay className="relative z-20" />
+      </Suspense>
       <AnimatePresence mode="popLayout" propagate={true} initial={false}>
-        {!showCurrentGuess ? (
+        {!currentGuess ? (
           <motion.div
             key="add-guess"
             initial={{ opacity: 0, y: 10 }}
@@ -75,26 +81,37 @@ export default function BTCGuessFeature() {
               Has the price of Bitcoin gone up or down after 1 minute?
             </h2>
             <div className="flex flex-row items-center gap-2">
-              <Button onClick={() => onGuess('down')} disabled={showCurrentGuess}>
+              <Button
+                isLoading={loadingGuess}
+                onClick={() => onGuess('down')}
+                disabled={showCurrentGuess}>
                 <ArrowDownIcon className="size-4" />
                 It's going down
               </Button>
-              <Button onClick={() => onGuess('up')} disabled={showCurrentGuess}>
+              <Button
+                isLoading={loadingGuess}
+                onClick={() => onGuess('up')}
+                disabled={showCurrentGuess}>
                 It's going up
                 <ArrowUpIcon className="size-4" />
               </Button>
             </div>
           </motion.div>
         ) : (
-          <CurrentGuess key="current-guess" onDone={onGuessDone} onResolved={refreshGuess} />
+          <CurrentGuess
+            key="current-guess"
+            onDone={onGuessDone}
+            onResolved={refreshGuess}
+            guess={currentGuess}
+          />
         )}
       </AnimatePresence>
       <div className="flex flex-col items-center gap-6">
         <div className="relative z-30 flex w-full flex-row items-center justify-center gap-2 text-xl">
           <NumberFlow value={points} format={{ notation: 'standard' }} className="font-medium" />
-          <span>Points</span>
+          <span>{points === 1 ? 'Point' : 'Points'}</span>
         </div>
-        <GuessesList className="w-full max-w-2xl" guesses={resolvedGuessesQuery.data ?? []} />
+        <GuessesList className="w-full max-w-2xl" guesses={resolvedGuesses} />
       </div>
     </div>
   )
