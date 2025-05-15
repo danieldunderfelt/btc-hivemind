@@ -34,7 +34,9 @@ export async function resolveGuess(
         lte(
           guesses.guessedAt,
           // Ensure that the guess was made at least 1 minute ago. Faster iteration in dev.
-          env.NODE_ENV === 'production' ? new Date(Date.now() - 60 * 1000) : new Date(),
+          env.NODE_ENV === 'production'
+            ? new Date(Date.now() - 60 * 1000)
+            : new Date(Date.now() - 10 * 1000),
         ),
       ),
     })

@@ -3,9 +3,9 @@
 export default $config({
   app(input) {
     return {
-      name: 'btc-hivemind',
-      removal: 'remove', // input?.stage === 'production' ? 'retain' : 'remove',
-      protect: false, //['production'].includes(input?.stage),
+      name: 'btc-hivemind', // Old name, do not change since it would make a completely new environment.
+      removal: input?.stage === 'production' ? 'retain' : 'remove',
+      protect: ['production'].includes(input?.stage),
       home: 'aws',
       region: 'eu-central-1',
       providers: {
@@ -50,8 +50,8 @@ export default $config({
     const database = new sst.aws.Aurora('AppDB', {
       engine: 'postgres',
       scaling: {
-        min: '0.5 ACU',
-        max: '2 ACU',
+        min: '0.25 ACU',
+        max: '1 ACU',
       },
       vpc,
       dataApi: true,
