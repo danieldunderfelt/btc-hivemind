@@ -1,5 +1,7 @@
 # BitFlip
 
+[https://bitflip.verycool.dev](Try the app!)
+
 BitFlip is an experiment to figure out if the wisdom of crowds can predict the direction of the price of Bitcoin more accurately than a coin flip.
 
 ## How it works, technically
