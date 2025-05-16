@@ -50,7 +50,7 @@ export default $config({
     const database = new sst.aws.Aurora('AppDB', {
       engine: 'postgres',
       scaling: {
-        min: '0.25 ACU',
+        min: '0.5 ACU',
         max: '1 ACU',
       },
       vpc,
@@ -91,6 +91,7 @@ export default $config({
     })
 
     const queue = new sst.aws.Queue('AppQueue')
+
     queue.subscribe({
       handler: 'server/queueHandler.handler',
       link: [database, betterAuthSecret, smtpSecret, web, router, cryptoCompareApiKey, queue],
