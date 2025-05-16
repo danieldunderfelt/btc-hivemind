@@ -44,6 +44,10 @@ declare module 'sst' {
       name: string
       type: 'sst.aws.Function'
     }
+    RESEND_API_KEY: {
+      type: 'sst.sst.Secret'
+      value: string
+    }
     Router: {
       type: 'sst.aws.Router'
       url: string

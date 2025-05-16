@@ -12,7 +12,7 @@ export async function resolveGuess(
   ctx: Ctx,
 ): Promise<ResolveGuessStatus> {
   // Use forceResolution to resolve a guess that is not yet resolved
-  // but locked by a previous resolution attempt. test
+  // but locked by a previous resolution attempt.
   const { guessId, userId, forceResolution = false } = guessProps
 
   try {

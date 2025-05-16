@@ -19,6 +19,7 @@ export default $config({
     const betterAuthSecret = new sst.Secret('BETTER_AUTH_SECRET')
     const smtpSecret = new sst.Secret('SMTP_PASSWORD')
     const cryptoCompareApiKey = new sst.Secret('CRYPTOCOMPARE_API_KEY')
+    const resendApiKey = new sst.Secret('RESEND_API_KEY')
 
     const domain =
       $app.stage === 'production'
@@ -34,9 +35,8 @@ export default $config({
 
     const env = {
       NODE_ENV: $dev ? 'development' : 'production',
-      SMTP_HOST: $dev ? '' : 'smtppro.zoho.com',
-      SMTP_PORT: $dev ? '' : '465',
-      SMTP_FROM_EMAIL: $dev ? '' : 'daniel@dunderfelt.consulting',
+      RESEND_FROM_EMAIL: 'noreply@bitflip.verycool.dev',
+      RESEND_FROM_NAME: 'Bitflip',
       API_URL: $dev ? 'http://localhost:3000' : `https://${subdomain('bitflip-api')}`,
       DATABASE_URL: 'postgresql://postgres:password@localhost:5432/local', // Local only
       API_PATH: '/',
@@ -114,7 +114,16 @@ export default $config({
       dev: false,
       environment: env,
       runtime: 'nodejs22.x',
-      link: [database, betterAuthSecret, smtpSecret, web, router, cryptoCompareApiKey, queue],
+      link: [
+        database,
+        betterAuthSecret,
+        smtpSecret,
+        web,
+        router,
+        cryptoCompareApiKey,
+        queue,
+        resendApiKey,
+      ],
     })
 
     const migrator = new sst.aws.Function('DatabaseMigrator', {
@@ -143,7 +152,16 @@ export default $config({
         command: 'bun dev:server',
       },
       environment: env,
-      link: [database, betterAuthSecret, smtpSecret, web, router, cryptoCompareApiKey, queue],
+      link: [
+        database,
+        betterAuthSecret,
+        smtpSecret,
+        web,
+        router,
+        cryptoCompareApiKey,
+        queue,
+        resendApiKey,
+      ],
     })
 
     return {
