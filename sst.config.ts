@@ -17,7 +17,6 @@ export default $config({
   },
   async run() {
     const betterAuthSecret = new sst.Secret('BETTER_AUTH_SECRET')
-    const smtpSecret = new sst.Secret('SMTP_PASSWORD')
     const cryptoCompareApiKey = new sst.Secret('CRYPTOCOMPARE_API_KEY')
     const resendApiKey = new sst.Secret('RESEND_API_KEY')
 
@@ -94,7 +93,16 @@ export default $config({
 
     queue.subscribe({
       handler: 'server/queueHandler.handler',
-      link: [database, betterAuthSecret, smtpSecret, web, router, cryptoCompareApiKey, queue],
+      link: [
+        database,
+        betterAuthSecret,
+        smtpSecret,
+        web,
+        router,
+        cryptoCompareApiKey,
+        queue,
+        resendApiKey,
+      ],
       environment: env,
     })
 

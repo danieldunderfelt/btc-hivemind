@@ -33,7 +33,11 @@ export const auth = betterAuth({
       sendVerificationOnSignUp: true,
       disableSignUp: false,
       async sendVerificationOTP({ email, otp, type }) {
-        console.log('Sending verification OTP:', otp)
+        if (env.NODE_ENV === 'development') {
+          console.log('Sending verification OTP:', otp)
+          return
+        }
+
         const html = await getVerificationEmail({ email, otp })
 
         const mailOptions = {

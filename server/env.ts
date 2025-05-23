@@ -23,7 +23,6 @@ export const env = createEnv({
     ...process.env,
     WEB_URL: Resource.AppWeb.url || process.env.WEB_URL || 'http://localhost:5173',
     BETTER_AUTH_SECRET: Resource.BETTER_AUTH_SECRET.value,
-    SMTP_PASSWORD: Resource.SMTP_PASSWORD.value,
     CRYPTOCOMPARE_API_KEY: Resource.CRYPTOCOMPARE_API_KEY.value,
     RESEND_API_KEY: Resource.RESEND_API_KEY.value,
   },
