@@ -93,16 +93,7 @@ export default $config({
 
     queue.subscribe({
       handler: 'server/queueHandler.handler',
-      link: [
-        database,
-        betterAuthSecret,
-        smtpSecret,
-        web,
-        router,
-        cryptoCompareApiKey,
-        queue,
-        resendApiKey,
-      ],
+      link: [database, betterAuthSecret, web, router, cryptoCompareApiKey, queue, resendApiKey],
       environment: env,
     })
 
@@ -122,16 +113,7 @@ export default $config({
       dev: false,
       environment: env,
       runtime: 'nodejs22.x',
-      link: [
-        database,
-        betterAuthSecret,
-        smtpSecret,
-        web,
-        router,
-        cryptoCompareApiKey,
-        queue,
-        resendApiKey,
-      ],
+      link: [database, betterAuthSecret, web, router, cryptoCompareApiKey, queue, resendApiKey],
     })
 
     const migrator = new sst.aws.Function('DatabaseMigrator', {
@@ -160,16 +142,7 @@ export default $config({
         command: 'bun dev:server',
       },
       environment: env,
-      link: [
-        database,
-        betterAuthSecret,
-        smtpSecret,
-        web,
-        router,
-        cryptoCompareApiKey,
-        queue,
-        resendApiKey,
-      ],
+      link: [database, betterAuthSecret, web, router, cryptoCompareApiKey, queue, resendApiKey],
     })
 
     return {
